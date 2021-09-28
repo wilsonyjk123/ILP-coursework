@@ -2,6 +2,8 @@ package uk.ac.ed.inf;
 
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static org.junit.Assert.*;
 
 public class AppTest {
@@ -88,7 +90,6 @@ public class AppTest {
         LongLat calculatedPosition = new LongLat(-3.191594, 55.943808);
         assertTrue(approxEq(nextPosition, calculatedPosition));
     }
-s
     @Test
     public void testAngle150(){
         LongLat appletonTower = new LongLat(-3.191594,55.943658);
@@ -138,7 +139,7 @@ s
     }
 
     @Test
-    public void testMenusOne() {
+    public void testMenusOne() throws IOException, InterruptedException {
         // The webserver must be running on port 9898 to run this test.
         Menus menus = new Menus("localhost", "9898");
         int totalCost = menus.getDeliveryCost(
@@ -149,7 +150,7 @@ s
     }
 
     @Test
-    public void testMenusTwo() {
+    public void testMenusTwo() throws IOException, InterruptedException {
         // The webserver must be running on port 9898 to run this test.
         Menus menus = new Menus("localhost", "9898");
         int totalCost = menus.getDeliveryCost(
@@ -161,7 +162,7 @@ s
     }
 
     @Test
-    public void testMenusThree() {
+    public void testMenusThree() throws IOException, InterruptedException {
         // The webserver must be running on port 9898 to run this test.
         Menus menus = new Menus("localhost", "9898");
         int totalCost = menus.getDeliveryCost(
@@ -174,7 +175,7 @@ s
     }
 
     @Test
-    public void testMenusFourA() {
+    public void testMenusFourA() throws IOException, InterruptedException {
         // The webserver must be running on port 9898 to run this test.
         Menus menus = new Menus("localhost", "9898");
         int totalCost = menus.getDeliveryCost(
@@ -188,7 +189,7 @@ s
     }
 
     @Test
-    public void testMenusFourB() {
+    public void testMenusFourB() throws IOException, InterruptedException {
         // The webserver must be running on port 9898 to run this test.
         Menus menus = new Menus("localhost", "9898");
         int totalCost = menus.getDeliveryCost(

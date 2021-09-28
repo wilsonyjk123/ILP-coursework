@@ -1,9 +1,6 @@
 package uk.ac.ed.inf;
 import java.lang.Math;
 
-import static java.lang.Math.abs;
-import static java.lang.Math.sqrt;
-
 public class LongLat {
     /*two public double fields named longitude and latitude*/
     public double longitude;
@@ -27,12 +24,11 @@ public class LongLat {
     public boolean closeTo(LongLat longLat){
         boolean isCloseTo;
         isCloseTo = distanceTo(longLat) < 0.00015;
-        return true;
+        return isCloseTo;
     }
     /*takes an int angle as a parameter and returns a LongLat object that represents the new position of drone if it makes a move in the direction of the angle*/
     public LongLat nextPosition(int angle){
         if((angle <= 350) && (angle >= 0) && (angle%10 == 0)){
-
             /*Convert degree to radian*/
             double angleRadian = Math.toRadians(angle);
 
@@ -40,9 +36,11 @@ public class LongLat {
             double newLongitude = longitude + 0.00015 * Math.cos(angleRadian);
             double newLatitude = latitude + 0.00015 * Math.sin(angleRadian);
 
-            /*create a LongLat object with the new longitude and latitude*/
-            LongLat longLat = new LongLat(newLongitude,latitude);
-            return longLat;
+            /*Return a LongLat object with the new longitude and latitude*/
+            return new LongLat(newLongitude,newLatitude);
+        }else if(angle == -999){
+            /*Return a LongLat object with the original longitude and latitude*/
+            return new LongLat(longitude,latitude);
         }else{
             /*throw an exception if the input angle is invalid*/
             throw new IllegalArgumentException("The input angle should be a multiples of ten between 0 and 350");
