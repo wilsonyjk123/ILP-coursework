@@ -2,6 +2,7 @@ package uk.ac.ed.inf;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
+import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -11,13 +12,14 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.reflect.Type;
+import com.google.gson.reflect.TypeToken;
 
 public class Menus {
-    String machineFirstName = "";
-    String port = "";
-    String jsonText = "";
+    private String machineFirstName = "";
+    private String port = "";
+    private String jsonText = "";
     private static final HttpClient client = HttpClient.newHttpClient();
-
 
     /*Constructor*/
     Menus(String machineFirstName, String port){
@@ -25,23 +27,55 @@ public class Menus {
         this.port = port;
     }
 
+    public static class MenusInfo{
+        String name;
+        String location;
+        List<Item> menu;
+        public static class Item{
+            String item;
+            int pence;
+        }
+    }
+    public String getJsonText(){
+        return this.jsonText;
+    }
+    public String getServerAddress(){
+        return "http://" + machineFirstName + ":" + port;
+    }
     /*Returns the int cost in pence of having all of these items delivered by drone*/
-     public int getDeliveryCost(String... items){
-         getResponse();
-         MenusInfo menusInfo = new Gson().fromJson(this.jsonText, (Type) MenusInfo.class);
-         List<item> list = new ArrayList<item>();
-         return 1;
+     public int getDeliveryCost(String... str){
+         int cost = 0;
+         try{
+             getResponse();
+             ArrayList<MenusInfo> menusList;
+             Type listType = new TypeToken<ArrayList<MenusInfo>>(){}.getType();
+             menusList = new Gson().fromJson(this.jsonText,listType);
+             for (MenusInfo m: menusList){
+                 for(MenusInfo.Item i: m.menu){
+                     for(String s:str){
+                         if(i.item.equals(s)){
+                             cost += i.pence;
+                         }
+
+                     }
+                 }
+             }
+         }catch (Exception e){
+             e.printStackTrace();
+             System.exit(1);
+         }
+        return cost+50; // 50p for delivery fee
      }
-     public String setUrlString(){
+
+     public String setUrlStringToMenus(){
          /*Set the urlString*/
-         String urlString = "http://" + machineFirstName + ":" + port+"/menus/menus.json";
-         return urlString;
+         return "http://" + machineFirstName + ":" + port+"/menus/menus.json";
      }
+
      public HttpRequest buildRequest(){
          /*Create a request*/
-         String urlString = setUrlString();
-         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(urlString)).build();
-         return request;
+         String urlString = setUrlStringToMenus();
+         return HttpRequest.newBuilder().uri(URI.create(urlString)).build();
      }
 
      public void getResponse(){
@@ -52,6 +86,7 @@ public class Menus {
                  this.jsonText = response.body();
              }else{
                  System.out.println("Connection Failed with Response Code: "+response.statusCode());
+                 System.exit(1);
              }
          }catch(IOException e){
              e.printStackTrace();
@@ -60,16 +95,5 @@ public class Menus {
              e.printStackTrace();
              System.out.println("Connection Failed: InterruptedException");
          }
-     }
-
-
-     public class MenusInfo{
-         String name;
-         String location;
-         List<item> menu;
-     }
-     public class item{
-        String item;
-        int pence;
      }
 }
