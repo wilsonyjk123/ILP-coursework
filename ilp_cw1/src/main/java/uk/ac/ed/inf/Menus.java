@@ -1,8 +1,6 @@
 package uk.ac.ed.inf;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 
-import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -12,7 +10,6 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.reflect.Type;
 import com.google.gson.reflect.TypeToken;
 
 public class Menus {
@@ -21,12 +18,20 @@ public class Menus {
     private String jsonText = "";
     private static final HttpClient client = HttpClient.newHttpClient();
 
-    /*Constructor*/
+    /**
+    * Menus constructor
+    *
+    * @param machineFirstName   - Server IP: {@code localhost}
+    * @param port               - The port that user needs to connect to the server
+    */
     Menus(String machineFirstName, String port){
         this.machineFirstName = machineFirstName;
         this.port = port;
     }
 
+    /**
+     * Inner class to access the parsed-data in json form
+     */
     public static class MenusInfo{
         String name;
         String location;
@@ -36,15 +41,25 @@ public class Menus {
             int pence;
         }
     }
-    public String getJsonText(){
-        return this.jsonText;
-    }
-    public String getServerAddress(){
-        return "http://" + machineFirstName + ":" + port;
-    }
-    /*Returns the int cost in pence of having all of these items delivered by drone*/
-     public int getDeliveryCost(String... str){
-         int cost = 0;
+
+    // Getters
+    public String getJsonText(){ return this.jsonText; }
+
+    public String getServerAddressToMenus(){ return "http://" + machineFirstName + ":" + port+"/menus/menus.json"; }
+
+    // Methods
+    /**
+     * Calculate the total cost of the given strings in menus
+     *
+     * @param strings - A list of strings concern the dishes in the menus
+     * @throws IllegalArgumentException If strings is not given as the correct type
+     * @throws IllegalArgumentException if strings has no visible content
+     * @throws NullPointerException If strings is null
+     * @return the total cost of dishes cost and extra delivery fee
+     * */
+     public int getDeliveryCost(String... strings){
+         // Initiate a counter to calculate the total cost
+         int totalCost = 0;
          try{
              getResponse();
              ArrayList<MenusInfo> menusList;
@@ -52,34 +67,29 @@ public class Menus {
              menusList = new Gson().fromJson(this.jsonText,listType);
              for (MenusInfo m: menusList){
                  for(MenusInfo.Item i: m.menu){
-                     for(String s:str){
+                     for(String s:strings){
                          if(i.item.equals(s)){
-                             cost += i.pence;
+                             totalCost += i.pence;
                          }
 
                      }
                  }
              }
-         }catch (Exception e){
+         }catch (IllegalArgumentException|NullPointerException e){
              e.printStackTrace();
              System.exit(1);
          }
-        return cost+50; // 50p for delivery fee
+        return totalCost + 50; // 50 pence for extra delivery fee
      }
 
-     public String setUrlStringToMenus(){
-         /*Set the urlString*/
-         return "http://" + machineFirstName + ":" + port+"/menus/menus.json";
-     }
-
-     public HttpRequest buildRequest(){
-         /*Create a request*/
-         String urlString = setUrlStringToMenus();
-         return HttpRequest.newBuilder().uri(URI.create(urlString)).build();
-     }
-
+    /**
+     * Connect to the target server and get the response of the request
+     *
+     * @throws IOException or InterruptedException If connecting to server is failed or A thread interruption operation has occurred
+     */
      public void getResponse(){
-         HttpRequest request = buildRequest();
+         String urlString = getServerAddressToMenus();
+         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(urlString)).build();
          try{
              HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
              if(response.statusCode() == 200){
@@ -88,12 +98,9 @@ public class Menus {
                  System.out.println("Connection Failed with Response Code: "+response.statusCode());
                  System.exit(1);
              }
-         }catch(IOException e){
+         }catch(IOException | InterruptedException e){
              e.printStackTrace();
-             System.out.println("Connection Failed: IOException");
-         }catch(InterruptedException e){
-             e.printStackTrace();
-             System.out.println("Connection Failed: InterruptedException");
+             System.exit(1);
          }
      }
 }
