@@ -2,47 +2,76 @@ package uk.ac.ed.inf;
 import java.lang.Math;
 
 public class LongLat {
-    /*two public double fields named longitude and latitude*/
+    // Public fields
     public double longitude;
     public double latitude;
-    /*The constructor that accepts two double-precision numbers*/
-    LongLat(double longitude,double latitude){
+
+    /**
+     * LongLat constructor
+     *
+     * @param longitude - Longitude is the measurement east or west of the prime meridian
+     * @param latitude  - Latitude is the measurement of distance north or south of the Equator
+     */
+    LongLat(double longitude, double latitude){
         this.longitude = longitude;
         this.latitude = latitude;
     }
-    /*The LongLat class should have a no-parameter method called isConfined which returns true if the point is within the drone confinement area and false if it is not.*/
+
+    //Methods
+    /**
+     * Determine whether the current point is in confinement area or not
+     *
+     * @return a true if the point is in confinement area and vice versa
+     */
     public boolean isConfined(){
-        boolean confinement;
-        confinement = (-3.192473 < longitude) && (longitude < -3.184319) && (55.942617 < latitude) && (latitude < 55.946233);
-        return confinement;
+        return (-3.192473 < longitude) && (longitude < -3.184319) && (55.942617 < latitude) && (latitude < 55.946233);
     }
-    /*Return the Pythagorean distance between the current point and the given point*/
+
+    /**
+     * Calculate the distance between the current point and the given point
+     *
+     * @param longLat   - a LongLat object that contains the position of the next point
+     * @return the Pythagorean distance between the current point and the given point
+     */
     public double distanceTo(LongLat longLat){
         return Math.sqrt(Math.pow((latitude-longLat.latitude),2) + Math.pow((longitude-longLat.longitude),2));
     }
-    /*Returns true if the points are close to each other and false otherwise*/
+
+    /**
+     * Determine whether the distance between the two points is in the given tolerance value
+     *
+     * @param longLat   - a LongLat object that contains the position of the next point
+     * @return true if the points are close to each other with the given tolerance value and vice versa
+     */
     public boolean closeTo(LongLat longLat){
-        boolean isCloseTo;
-        isCloseTo = distanceTo(longLat) < 0.00015;
-        return isCloseTo;
+        return distanceTo(longLat) < 0.00015;
     }
+
     /*takes an int angle as a parameter and returns a LongLat object that represents the new position of drone if it makes a move in the direction of the angle*/
+
+    /**
+     * Give the new position of the drone after a movement is executed
+     *
+     * @param angle - A representation of the direction of the drone's next movement
+     * @return a LongLat object that represents the new position of drone
+     */
     public LongLat nextPosition(int angle){
+        // Check if the parameter is in a valid form base on the given rules
         if((angle <= 350) && (angle >= 0) && (angle%10 == 0)){
-            /*Convert degree to radian*/
+            // Convert degree to radian
             double angleRadian = Math.toRadians(angle);
 
-            /*Calculate the new longitude and latitude*/
+            // Calculate the new longitude and latitude
             double newLongitude = longitude + 0.00015 * Math.cos(angleRadian);
             double newLatitude = latitude + 0.00015 * Math.sin(angleRadian);
 
-            /*Return a LongLat object with the new longitude and latitude*/
+            // Return a LongLat object with the new longitude and latitude
             return new LongLat(newLongitude,newLatitude);
         }else if(angle == -999){
-            /*Return a LongLat object with the original longitude and latitude*/
+            // Return a LongLat object with the original longitude and latitude since it performs a hovering
             return new LongLat(longitude,latitude);
         }else{
-            /*throw an exception if the input angle is invalid*/
+            // Throw an exception if the input angle is invalid
             throw new IllegalArgumentException("The input angle should be a multiples of ten between 0 and 350");
         }
     }
