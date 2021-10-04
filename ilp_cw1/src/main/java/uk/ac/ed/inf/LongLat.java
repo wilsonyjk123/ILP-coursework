@@ -72,7 +72,7 @@ public class LongLat {
             return new LongLat(longitude,latitude);
         }else{
             // Throw an exception if the input angle is invalid
-            throw new IllegalArgumentException("The input angle should be a multiples of ten between 0 and 350");
+            throw new IllegalArgumentException("The input angle should be a multiples of ten between 0 and 350 or -999 for representing hovering");
         }
     }
 
