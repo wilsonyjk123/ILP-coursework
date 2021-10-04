@@ -51,7 +51,7 @@ public class Menus {
 
     // Methods
     /**
-     * Calculate the total cost of the given strings in menus
+     * Calculate the total cost of the given strings
      *
      * @param strings - A list of strings concern the dishes in the menus
      * @throws IllegalArgumentException If strings is not given as the correct type
@@ -98,7 +98,7 @@ public class Menus {
     /**
      * Connect to the target server and get the response of the request
      *
-     * @throws IOException or InterruptedException If a send request is failed
+     * @throws  IOException or InterruptedException If a send request is failed
      */
      public void getResponse(){
          // Set the urlString by using the getter
