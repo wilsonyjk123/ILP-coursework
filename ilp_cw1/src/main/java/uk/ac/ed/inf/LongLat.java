@@ -47,8 +47,6 @@ public class LongLat {
         return distanceTo(longLat) < 0.00015;
     }
 
-    /*takes an int angle as a parameter and returns a LongLat object that represents the new position of drone if it makes a move in the direction of the angle*/
-
     /**
      * Give the new position of the drone after a movement is executed
      *
