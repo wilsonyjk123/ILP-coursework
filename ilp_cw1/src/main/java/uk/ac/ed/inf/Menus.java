@@ -32,7 +32,7 @@ public class Menus {
     }
 
     /**
-     * Inner class to access the parsed-data in json form
+     * The inner class to access the parsed-data in json form
      */
     public static class MenusInfo{
         String name;
@@ -68,7 +68,7 @@ public class Menus {
 
              // Parsing the text in json form and create an object of the corresponding inner class to access the attributes
              Type listType = new TypeToken<ArrayList<MenusInfo>>(){}.getType();
-             ArrayList<MenusInfo> menusList = new Gson().fromJson(this.jsonText,listType);
+             ArrayList<MenusInfo> menusList = new Gson().fromJson(this.jsonText, listType);
 
              // Iterate each MenusInfo object in the menuList
              for (MenusInfo mi: menusList){
@@ -96,7 +96,7 @@ public class Menus {
      }
 
     /**
-     * Connect to the target server and get the response of the request
+     * A helper function connect to the target server and get the response of the request
      *
      * @throws  IOException or InterruptedException If a send request is failed
      */
@@ -113,6 +113,7 @@ public class Menus {
 
              // If the status code of the response is 200, then we can use response.body()
              if(response.statusCode() == 200){
+                 // Get the response body and give it to the "jsonText" attribute
                  this.jsonText = response.body();
              }else{
                  System.out.println("Connection Failed with Response Code: " + response.statusCode());
