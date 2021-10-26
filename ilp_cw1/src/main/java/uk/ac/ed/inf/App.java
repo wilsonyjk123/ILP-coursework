@@ -27,7 +27,8 @@ public class App
         Database database = new Database("1527");
         database.readDataFromDatabase(database.getJDBCString());
         Map map = new Map("9898");
-        map.connection();
+        map.getNoFlyZone();
+        MenuParser menuParser = new MenuParser();
 
 
     }

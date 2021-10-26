@@ -39,8 +39,7 @@ public class WordParser {
         String map;
     }
     public void parseWord(){
+        // TODO
         word = new Gson().fromJson(jsonText, Word.class);
     }
-
-
 }

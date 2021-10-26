@@ -26,5 +26,6 @@ public class MenuParser {
     public void parseMenus(){
         Type listType = new TypeToken<ArrayList<Menu>>(){}.getType();
         wordList = new Gson().fromJson(this.jsonText, listType);
+        System.out.println(wordList);
     }
 }
