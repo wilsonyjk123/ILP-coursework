@@ -28,15 +28,6 @@ public class Drone {
     }
     public void nextMove() throws SQLException {
         // 订单排序
-        database.readOrderDetailsFromDatabase();
-        for(Map.Entry<String,ArrayList<String>> entry : database.menusRespectToOrderNo.entrySet()){
-            costs.add(getDeliveryCost(entry.getValue()));
-        }
-        for(int i = 0;i<database.menusRespectToOrderNo.size();i++){
-            dict.put(database.orderNoInOrderDetails.get(i),costs.get(i));
-        }
-        //costs.sort(Comparator.naturalOrder());
-        System.out.println(dict);
     }
 
     public int getDeliveryCost(ArrayList<String> strings){
@@ -44,7 +35,7 @@ public class Drone {
         int totalCost = 0;
         ArrayList<MenuParser.Menu> menusList = menuParser.parseMenus();
         try{
-            // Iterate each MenusInfo object in the menuList
+            // Iterate each MenusInfo object incmdc the menuList
             for (MenuParser.Menu mi: menusList){
 
                 // Iterate each item object in the menu

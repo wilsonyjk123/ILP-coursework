@@ -7,21 +7,24 @@ import java.util.Map;
 
 public class Database {
     String dataBasePort;
-    final String ordersQuery = "select * from orders";
-    final String orderDetailsQuery = "select * from orderDetails";
+    String day;
+    String month;
+    String year;
+    String dateString;
     ArrayList<String> orderNoInOrders = new ArrayList<>();
     ArrayList<String> orderNoInOrderDetails = new ArrayList<>();
     ArrayList<String> deliveryDate = new ArrayList<>();
     ArrayList<String> customer = new ArrayList<>();
     ArrayList<String> deliveryTo = new ArrayList<>();
     ArrayList<String> item = new ArrayList<>();
-    Map<String, String> deliveryThreeWordAddress = new HashMap<>();
-    Map<String, ArrayList<String>> menusRespectToOrderNo = new HashMap<>();
-    ArrayList<String> buffer = new ArrayList<>();
 
     // Constructor
-    Database(String dataBasePort){
+    Database(String dataBasePort, String day, String month, String year){
         this.dataBasePort = dataBasePort;
+        this.day = day;
+        this.month = month;
+        this.year = year;
+        this.dateString = this.year + "-" + this.month + "-" + this.day;
     }
 
     // Methods
@@ -29,11 +32,14 @@ public class Database {
         return "jdbc:derby://localhost:" + dataBasePort + "/derbyDB";
     }
 
-    public void readOrdersFromDatabase() throws SQLException {
+    public ArrayList<Order> readOrdersFromDatabase() throws SQLException {
+        ArrayList<Order> orders = new ArrayList<>();
+        final String ordersQuery = "select * from orders where deliveryDate='" + dateString + "'";
         Connection conn = DriverManager.getConnection(getJDBCString());
         PreparedStatement psOrdersQuery = conn.prepareStatement(ordersQuery);
         ResultSet rs = psOrdersQuery.executeQuery();
         while (rs.next()) {
+            //TODO 数据库每读一行建立一个order对象
             String order = rs.getString("orderNo");
             orderNoInOrders.add(order);
             String delivery = rs.getString("deliveryDate");
@@ -44,13 +50,11 @@ public class Database {
             deliveryTo.add(deliverT);
             System.out.println("orders table INFO: " + order + "||" + delivery + "||" + cus + "||" + deliverT);
         }
-        for(int i = 0;i<orderNoInOrders.size();i++){
-            deliveryThreeWordAddress.put(orderNoInOrders.get(i),deliveryTo.get(i));
-        }
-
+        return orders;
     }
 
     public void readOrderDetailsFromDatabase() throws SQLException {
+        final String orderDetailsQuery = "select * from orderDetails";
         Connection conn = DriverManager.getConnection(getJDBCString());
         PreparedStatement psOrdersQuery = conn.prepareStatement(orderDetailsQuery);
         ResultSet rs = psOrdersQuery.executeQuery();
@@ -67,22 +71,7 @@ public class Database {
 //        for(int i = 0;i<10;i++){
 //            System.out.println(item.get(i));
 //        }
-        for(int i = 0;i<orderNoInOrderDetails.size();i++){
-            if(menusRespectToOrderNo.containsKey(orderNoInOrderDetails.get(i))){
-                //System.out.println(orderNoInOrderDetails.get(i));
-                //buffer.add(item.get(i));
-                menusRespectToOrderNo.get(orderNoInOrderDetails.get(i)).add(item.get(i));
-                //menusRespectToOrderNo.put(orderNoInOrderDetails.get(i),item.get(i));
-                //System.out.println(menusRespectToOrderNo);
-            }else{
-                //System.out.println(orderNoInOrderDetails.get(i));
-                ArrayList<String> strs = new ArrayList<>();
-                strs.add(item.get(i));
-                menusRespectToOrderNo.put(orderNoInOrderDetails.get(i),strs);
-                //System.out.println(menusRespectToOrderNo);
-            }
-        }
-        System.out.println(menusRespectToOrderNo);
+
     }
 
 }
