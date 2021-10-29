@@ -13,7 +13,6 @@ public class WebConn {
 
     WebConn(String webPort){
         this.webPort = webPort;
-
     }
 
     private static final HttpClient client = HttpClient.newHttpClient();
@@ -27,8 +26,6 @@ public class WebConn {
         String threeWordURL = "/words/" + wordList[0] + "/" + wordList[1] + "/" + wordList[2] + "/details.json";
         return "http://localhost:" + webPort + threeWordURL;
     }
-
-
 
     // Methods for constructing web server connection
     public HttpRequest createRequest(String urlString){

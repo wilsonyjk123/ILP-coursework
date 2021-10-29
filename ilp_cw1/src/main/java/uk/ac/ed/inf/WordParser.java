@@ -2,13 +2,19 @@ package uk.ac.ed.inf;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import java.awt.*;
 import java.lang.reflect.Type;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 
 public class WordParser {
+    String webPort;
+    String threeWord;
     String jsonText;
-    WordParser(String jsonText){
-        this.jsonText = jsonText;
+    WordParser(String webPort, String threeWord){
+        this.webPort = webPort;
+        this.threeWord = threeWord;
     }
     Word word = null;
 
@@ -38,8 +44,21 @@ public class WordParser {
         String language;
         String map;
     }
-    public void parseWord(){
-        // TODO
+    public Word parseWord(){
+        WebConn webConn = new WebConn(webPort);
+        try{
+            HttpResponse<String> response = webConn.createResponse(webConn.createRequest(webConn.getURLStringForThreeWordsLocation(threeWord)));
+            if(response.statusCode() == 200){
+                this.jsonText = response.body();
+            }else{
+                System.out.println("Connection Failed with Response Code: " + response.statusCode());
+                System.exit(1);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.exit(1);
+        }
         word = new Gson().fromJson(jsonText, Word.class);
+        return word;
     }
 }

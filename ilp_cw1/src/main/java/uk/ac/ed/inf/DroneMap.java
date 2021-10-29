@@ -6,7 +6,7 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Map {
+public class DroneMap {
     // private fields
     private final double ATLong = -3.186874;
     private final double ATLat = 55.944494;
@@ -20,12 +20,19 @@ public class Map {
     private final double BuccleuchLat = 55.942617;
     private ArrayList<Feature> lfLandmarks = new ArrayList<>();
     private ArrayList<Feature> lfNoFlyZone = new ArrayList<>();
+    private ArrayList<Point> confinementPoints = new ArrayList<>();
     private String webPort;
 
-    // Constructor
-    Map(String webPort){
+
+    // Class Constructor
+    DroneMap(String webPort){
         this.webPort = webPort;
     }
+
+    // Getters
+    public ArrayList<Feature> returnLfLandmarks(){ return lfLandmarks; }
+
+    public ArrayList<Feature> returnLfNoFlyZone(){ return lfNoFlyZone; }
 
     // Methods
     public String getURLStringForNoFlyZones(){ return "http://localhost:" + webPort + "/buildings/no-fly-zones.geojson"; }
@@ -34,11 +41,24 @@ public class Map {
         return "http://localhost:" + webPort + "/buildings/landmarks.geojson";
     }
 
+    public void getConfinementArea(){
+        Point pointFH = Point.fromLngLat(FHLong,FHLat);
+        Point pointKFC = Point.fromLngLat(KFCLong,KFCLat);
+        Point pointMeadows = Point.fromLngLat(MeadowsLong,MeadowsLat);
+        Point pointBuccleuch = Point.fromLngLat(BuccleuchLong,BuccleuchLat);
+        confinementPoints = new ArrayList<>();
+        confinementPoints.add(pointFH);
+        confinementPoints.add(pointKFC);
+        confinementPoints.add(pointMeadows);
+        confinementPoints.add(pointBuccleuch);
+    }
+
     public void getLandMarks(){
         WebConn webConn = new WebConn(webPort);
         HttpResponse<String> response = webConn.createResponse(webConn.createRequest(getURLStringForLandmarks()));
         FeatureCollection fc = FeatureCollection.fromJson(response.body());
         lfLandmarks = (ArrayList<Feature>) fc.features();
+        System.out.println(lfLandmarks);
     }
 
     public void getNoFlyZone(){
@@ -46,6 +66,6 @@ public class Map {
         HttpResponse<String> response = webConn.createResponse(webConn.createRequest(getURLStringForNoFlyZones()));
         FeatureCollection fc = FeatureCollection.fromJson(response.body());
         lfNoFlyZone = (ArrayList<Feature>) fc.features();
+        System.out.println(lfNoFlyZone);
     }
-
 }
