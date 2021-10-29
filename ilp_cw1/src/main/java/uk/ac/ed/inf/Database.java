@@ -40,30 +40,26 @@ public class Database {
         ResultSet rs = psOrdersQuery.executeQuery();
         while (rs.next()) {
             //TODO 数据库每读一行建立一个order对象
-            String order = rs.getString("orderNo");
-            orderNoInOrders.add(order);
+            String orderNo = rs.getString("orderNo");
             String delivery = rs.getString("deliveryDate");
-            deliveryDate.add(delivery);
             String cus = rs.getString("customer");
-            customer.add(cus);
             String deliverT = rs.getString("deliverTo");
-            deliveryTo.add(deliverT);
+            Order order = new Order(orderNo,delivery,cus,deliverT);
+            orders.add(order);
             System.out.println("orders table INFO: " + order + "||" + delivery + "||" + cus + "||" + deliverT);
         }
         return orders;
     }
 
     public void readOrderDetailsFromDatabase() throws SQLException {
-        final String orderDetailsQuery = "select * from orderDetails";
+        final String orderDetailsQuery = "select * from orderDetails where orderNo='987526aa' or orderNo = 'd7d0821c'";
         Connection conn = DriverManager.getConnection(getJDBCString());
         PreparedStatement psOrdersQuery = conn.prepareStatement(orderDetailsQuery);
         ResultSet rs = psOrdersQuery.executeQuery();
         while (rs.next()){
             String order = rs.getString("orderNo");
-            orderNoInOrderDetails.add(order);
             String it = rs.getString("item");
-            item.add(it);
-            //System.out.println("orders table INFO: " + order + "||" + it);
+            System.out.println("orders table INFO: " + order + "||" + it);
         }
 //        for(int i = 0;i<10;i++){
 //            System.out.println(orderNoInOrderDetails.get(i));

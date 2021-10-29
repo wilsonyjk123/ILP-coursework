@@ -9,11 +9,10 @@ public class Order {
     String deliverTo;
     ArrayList<String> item;
 
-    Order(String orderNo, String deliveryDate, String customer, String deliverTo, ArrayList<String> item){
+    Order(String orderNo, String deliveryDate, String customer, String deliverTo){
         this.orderNo = orderNo;
         this.deliveryDate = deliveryDate;
         this.customer = customer;
-        this.deliverTo = deliverTo;
-        this.item = item;
+        this.deliverTo = deliverTo;;
     }
 }

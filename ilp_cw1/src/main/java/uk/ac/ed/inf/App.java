@@ -1,6 +1,7 @@
 package uk.ac.ed.inf;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 
 /**
@@ -16,6 +17,7 @@ public class App
 //        String webPort = args[3];
 //        String databasePort = args[4];
         Database database = new Database("1527","11","4", "2022");
-        database.readOrdersFromDatabase();
+        //database.readOrdersFromDatabase();
+        database.readOrderDetailsFromDatabase();
     }
 }
