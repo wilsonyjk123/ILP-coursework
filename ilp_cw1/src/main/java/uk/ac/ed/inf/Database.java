@@ -6,25 +6,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Database {
+    String webPort;
     String dataBasePort;
     String day;
     String month;
     String year;
     String dateString;
-    ArrayList<String> orderNoInOrders = new ArrayList<>();
-    ArrayList<String> orderNoInOrderDetails = new ArrayList<>();
-    ArrayList<String> deliveryDate = new ArrayList<>();
-    ArrayList<String> customer = new ArrayList<>();
-    ArrayList<String> deliveryTo = new ArrayList<>();
-    ArrayList<String> item = new ArrayList<>();
+    MenuParser menuParser;
 
     // Constructor
-    Database(String dataBasePort, String day, String month, String year){
+    Database(String webPort,String dataBasePort, String day, String month, String year){
         this.dataBasePort = dataBasePort;
         this.day = day;
         this.month = month;
         this.year = year;
         this.dateString = this.year + "-" + this.month + "-" + this.day;
+        this.menuParser = new MenuParser(webPort);
+        menuParser.parseMenus();
     }
 
     // Methods
@@ -44,30 +42,60 @@ public class Database {
             String delivery = rs.getString("deliveryDate");
             String cus = rs.getString("customer");
             String deliverT = rs.getString("deliverTo");
-            Order order = new Order(orderNo,delivery,cus,deliverT);
+            ArrayList<String> items = readOrderDetailsFromDatabase(orderNo);
+            int price = getDeliveryCost(items);
+            Order order = new Order(orderNo,delivery,cus,deliverT,items,price);
             orders.add(order);
-            System.out.println("orders table INFO: " + order + "||" + delivery + "||" + cus + "||" + deliverT);
+            //System.out.println("orders table INFO: " + order + "||" + delivery + "||" + cus + "||" + deliverT);
         }
         return orders;
     }
 
-    public void readOrderDetailsFromDatabase() throws SQLException {
-        final String orderDetailsQuery = "select * from orderDetails where orderNo='987526aa' or orderNo = 'd7d0821c'";
+    public ArrayList<String> readOrderDetailsFromDatabase(String orderNo) throws SQLException {
+        final String orderDetailsQuery = "select * from orderDetails where orderNo=(?)";
         Connection conn = DriverManager.getConnection(getJDBCString());
         PreparedStatement psOrdersQuery = conn.prepareStatement(orderDetailsQuery);
+        psOrdersQuery.setString(1,orderNo);
         ResultSet rs = psOrdersQuery.executeQuery();
+        ArrayList<String> str = new ArrayList<>();
         while (rs.next()){
             String order = rs.getString("orderNo");
             String it = rs.getString("item");
-            System.out.println("orders table INFO: " + order + "||" + it);
+            str.add(it);
+            //System.out.println("orders table INFO: " + order + "||" + it);
         }
-//        for(int i = 0;i<10;i++){
-//            System.out.println(orderNoInOrderDetails.get(i));
-//        }
-//        for(int i = 0;i<10;i++){
-//            System.out.println(item.get(i));
-//        }
+        //System.out.println(str);
+        return str;
+    }
 
+    public Integer getDeliveryCost(ArrayList<String> strings){
+        // Initiate a counter to calculate the total cost
+        int totalCost = 0;
+        ArrayList<MenuParser.Menu> menusList = menuParser.parseMenus();
+        try{
+            // Iterate each MenusInfo object incmdc the menuList
+            for (MenuParser.Menu mi: menusList){
+
+                // Iterate each item object in the menu
+                for(MenuParser.Menu.Item i: mi.menu){
+
+                    // Iterate each string in the given parameter - strings
+                    for(String s:strings){
+
+                        // Compare each of these two strings
+                        if(i.item.equals(s)){
+                            // Add the money to the counter if the two strings correspond
+                            totalCost += i.pence;
+                        }
+
+                    }
+                }
+            }
+        }catch (IllegalArgumentException | NullPointerException e){
+            e.printStackTrace();
+            System.exit(1); // Unsuccessful termination
+        }
+        return totalCost + 50; // 50 pence for extra delivery fee
     }
 
 }

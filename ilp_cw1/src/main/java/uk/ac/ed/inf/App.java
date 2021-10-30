@@ -1,8 +1,8 @@
 package uk.ac.ed.inf;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
-
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Hello world!
@@ -16,8 +16,13 @@ public class App
 //        String year = args[2];
 //        String webPort = args[3];
 //        String databasePort = args[4];
-        Database database = new Database("1527","11","4", "2022");
-        //database.readOrdersFromDatabase();
-        database.readOrderDetailsFromDatabase();
+        Database database = new Database("9898","1527","23","2", "2023");
+        MenuParser menuParser = new MenuParser("9898");
+        DroneMap droneMap = new DroneMap("9898");
+        //WordParser wordParser = new WordParser("9898");
+        Drone drone = new Drone(droneMap,menuParser, database);
+        drone.sortOrders();
+        drone.findOrderShopLocations();
+
     }
 }

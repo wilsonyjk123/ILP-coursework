@@ -1,10 +1,7 @@
 package uk.ac.ed.inf;
- import com.google.gson.Gson;
- import com.google.gson.reflect.TypeToken;
-
- import java.lang.reflect.Type;
- import java.sql.SQLException;
- import java.util.*;
+import java.sql.SQLException;
+import java.util.*;
+import java.awt.*;
 
 public class Drone {
     // Fields
@@ -15,51 +12,56 @@ public class Drone {
     LongLat startPosition;
     LongLat currentPosition;
     LongLat nextPosition;
+    ArrayList<Order> orders;
     private static final int droneBattery = 1500;
-    ArrayList<Integer> costs = new ArrayList<>();
-    Map<String, Integer> dict = new HashMap<>();
 
 
     // Class Constructor
-    Drone(DroneMap map, MenuParser menuParser, Database database){
+    Drone(DroneMap map, MenuParser menuParser, Database database) throws SQLException {
         this.map = map;
         this.menuParser = menuParser; // get the location of stores
         this.database = database; // connect to database and get order details
+        this.orders = database.readOrdersFromDatabase();
     }
     public void nextMove() throws SQLException {
-        // 订单排序
+
     }
 
-    public int getDeliveryCost(ArrayList<String> strings){
-        // Initiate a counter to calculate the total cost
-        int totalCost = 0;
-        ArrayList<MenuParser.Menu> menusList = menuParser.parseMenus();
-        try{
-            // Iterate each MenusInfo object incmdc the menuList
-            for (MenuParser.Menu mi: menusList){
-
-                // Iterate each item object in the menu
-                for(MenuParser.Menu.Item i: mi.menu){
-
-                    // Iterate each string in the given parameter - strings
-                    for(String s:strings){
-
-                        // Compare each of these two strings
-                        if(i.item.equals(s)){
-                            // Add the money to the counter if the two strings correspond
-                            totalCost += i.pence;
+    public void sortOrders() throws SQLException {
+        Comparator<Order> c = Collections.reverseOrder();
+        for(int i =0;i<orders.size();i++){
+            //System.out.println(orders.get(i).price);
+        }
+        orders.sort(c);
+        for(int i =0;i<orders.size();i++){
+            //System.out.println(orders.get(i).price);
+        }
+    }
+    public void findOrderShopLocations(){
+        for(int i = 0;i<orders.size();i++){
+            System.out.println(orders.get(i));//
+            for(int j = 0;j<orders.get(i).item.size();j++){
+                String name = orders.get(i).item.get(j);
+                System.out.println(name);//
+                ArrayList<MenuParser.Menu> menusList = menuParser.parseMenus();
+                try{
+                    for (MenuParser.Menu mi: menusList){
+                        for(MenuParser.Menu.Item k: mi.menu){
+                            if(k.item.equals(name)){
+                                ArrayList<String> shop = orders.get(i).orderShopLocations;
+                                System.out.println(mi.location);//
+                                System.out.println(shop);//
+                            }
                         }
-
                     }
+                }catch (IllegalArgumentException | NullPointerException e){
+                    e.printStackTrace();
+                    System.exit(1); // Unsuccessful termination
                 }
             }
-        }catch (IllegalArgumentException | NullPointerException e){
-            e.printStackTrace();
-            System.exit(1); // Unsuccessful termination
         }
-        return totalCost + 50; // 50 pence for extra delivery fee
+        for(int i = 0;i<orders.size();i++){
+            //System.out.println(orders.get(i).orderShopLocations);
+        }
     }
-
-
-
 }
