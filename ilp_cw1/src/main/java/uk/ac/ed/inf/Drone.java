@@ -39,18 +39,15 @@ public class Drone {
     }
     public void findOrderShopLocations(){
         for(int i = 0;i<orders.size();i++){
-            System.out.println(orders.get(i));//
             for(int j = 0;j<orders.get(i).item.size();j++){
                 String name = orders.get(i).item.get(j);
-                System.out.println(name);//
                 ArrayList<MenuParser.Menu> menusList = menuParser.parseMenus();
                 try{
                     for (MenuParser.Menu mi: menusList){
                         for(MenuParser.Menu.Item k: mi.menu){
                             if(k.item.equals(name)){
-                                ArrayList<String> shop = orders.get(i).orderShopLocations;
-                                System.out.println(mi.location);//
-                                System.out.println(shop);//
+                                orders.get(i).orderShopLocations = new ArrayList<>();
+                                orders.get(i).orderShopLocations.add(mi.location);
                             }
                         }
                     }
@@ -61,7 +58,7 @@ public class Drone {
             }
         }
         for(int i = 0;i<orders.size();i++){
-            //System.out.println(orders.get(i).orderShopLocations);
+            System.out.println(orders.get(i).orderShopLocations);
         }
     }
 }
