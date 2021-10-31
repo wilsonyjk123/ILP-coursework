@@ -69,22 +69,13 @@ public class Database {
     }
 
     public Integer getDeliveryCost(ArrayList<String> strings){
-        // Initiate a counter to calculate the total cost
         int totalCost = 0;
         ArrayList<MenuParser.Menu> menusList = menuParser.parseMenus();
         try{
-            // Iterate each MenusInfo object incmdc the menuList
             for (MenuParser.Menu mi: menusList){
-
-                // Iterate each item object in the menu
                 for(MenuParser.Menu.Item i: mi.menu){
-
-                    // Iterate each string in the given parameter - strings
                     for(String s:strings){
-
-                        // Compare each of these two strings
                         if(i.item.equals(s)){
-                            // Add the money to the counter if the two strings correspond
                             totalCost += i.pence;
                         }
 

@@ -10,11 +10,9 @@ import java.util.ArrayList;
 
 public class WordParser {
     String webPort;
-    String threeWord;
     String jsonText;
-    WordParser(String webPort, String threeWord){
+    WordParser(String webPort){
         this.webPort = webPort;
-        this.threeWord = threeWord;
     }
     Word word = null;
 
@@ -44,7 +42,7 @@ public class WordParser {
         String language;
         String map;
     }
-    public Word parseWord(){
+    public Word parseWord(String threeWord){
         WebConn webConn = new WebConn(webPort);
         try{
             HttpResponse<String> response = webConn.createResponse(webConn.createRequest(webConn.getURLStringForThreeWordsLocation(threeWord)));

@@ -20,7 +20,7 @@ public class DroneMap {
     private final double BuccleuchLat = 55.942617;
     private ArrayList<Feature> lfLandmarks = new ArrayList<>();
     private ArrayList<Feature> lfNoFlyZone = new ArrayList<>();
-    private ArrayList<Point> confinementPoints = new ArrayList<>();
+    private ArrayList<Point> confinementArea = new ArrayList<>();
     private String webPort;
 
 
@@ -30,6 +30,26 @@ public class DroneMap {
     }
 
     // Getters
+    public double getATLong(){ return ATLong; }
+
+    public double getATLat(){ return ATLat; }
+
+    public double getFHLong(){ return FHLong; }
+
+    public double getFHLat(){ return FHLat; }
+
+    public double getKFCLong(){ return KFCLong; }
+
+    public double getKFCLat(){ return KFCLat; }
+
+    public double getMeadowsLong(){ return MeadowsLong; }
+
+    public double getMeadowsLat(){ return MeadowsLat; }
+
+    public double getBuccleuchLong(){ return BuccleuchLong; }
+
+    public double getBuccleuchLat(){ return BuccleuchLat; }
+
     public ArrayList<Feature> returnLfLandmarks(){ return lfLandmarks; }
 
     public ArrayList<Feature> returnLfNoFlyZone(){ return lfNoFlyZone; }
@@ -46,11 +66,11 @@ public class DroneMap {
         Point pointKFC = Point.fromLngLat(KFCLong,KFCLat);
         Point pointMeadows = Point.fromLngLat(MeadowsLong,MeadowsLat);
         Point pointBuccleuch = Point.fromLngLat(BuccleuchLong,BuccleuchLat);
-        confinementPoints = new ArrayList<>();
-        confinementPoints.add(pointFH);
-        confinementPoints.add(pointKFC);
-        confinementPoints.add(pointMeadows);
-        confinementPoints.add(pointBuccleuch);
+        confinementArea = new ArrayList<>();
+        confinementArea.add(pointFH);
+        confinementArea.add(pointKFC);
+        confinementArea.add(pointMeadows);
+        confinementArea.add(pointBuccleuch);
     }
 
     public void getLandMarks(){
