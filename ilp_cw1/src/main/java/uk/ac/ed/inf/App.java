@@ -21,5 +21,10 @@ public class App
         DroneMap droneMap = new DroneMap("9898");
         Drone drone = new Drone(droneMap,menuParser, database,droneMap);
         drone.preparation();
+        drone.Move();
+        System.out.println(drone.printRoute());
+
+
+
     }
 }

@@ -10,8 +10,7 @@ public class Order implements Comparable<Order> {
     ArrayList<String> item;
     ArrayList<String> orderShopLocations = null;
     Integer price;
-    ArrayList<LongLat> shopLongLats;
-    LongLat deliverToLongLat;
+    ArrayList<LongLat> routeLongLat;
     boolean isDelivered = false;
 
     Order(String orderNo, String deliveryDate, String customer, String deliverTo, ArrayList<String> item, Integer price){

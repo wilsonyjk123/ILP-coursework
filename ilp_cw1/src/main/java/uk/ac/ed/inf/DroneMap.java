@@ -18,10 +18,14 @@ public class DroneMap {
     private final double MeadowsLat = 55.942617;
     private final double BuccleuchLong = -3.184319;
     private final double BuccleuchLat = 55.942617;
-    private ArrayList<Feature> lfLandmarks = new ArrayList<>();
-    private ArrayList<Feature> lfNoFlyZone = new ArrayList<>();
-    private ArrayList<Point> confinementArea = new ArrayList<>();
-    private String webPort;
+    public ArrayList<Feature> lfLandmarks = new ArrayList<>();
+    public ArrayList<Feature> lfNoFlyZone = new ArrayList<>();
+    public ArrayList<Point> confinementArea = new ArrayList<>();
+
+    public ArrayList<Line> lines = new ArrayList<>();
+    public ArrayList<LongLat> landmarks = new ArrayList<>();
+
+    public String webPort;
 
 
     // Class Constructor
@@ -50,17 +54,18 @@ public class DroneMap {
 
     public double getBuccleuchLat(){ return BuccleuchLat; }
 
-    public ArrayList<Feature> returnLfLandmarks(){ return lfLandmarks; }
+//    public ArrayList<Feature> returnLfLandmarks(){ return lfLandmarks; }
+//
+//    public ArrayList<Feature> returnLfNoFlyZone(){ return lfNoFlyZone; }
 
-    public ArrayList<Feature> returnLfNoFlyZone(){ return lfNoFlyZone; }
 
-    // Methods
     public String getURLStringForNoFlyZones(){ return "http://localhost:" + webPort + "/buildings/no-fly-zones.geojson"; }
 
     public String getURLStringForLandmarks(){
         return "http://localhost:" + webPort + "/buildings/landmarks.geojson";
     }
 
+    // Methods
     public void getConfinementArea(){
         Point pointFH = Point.fromLngLat(FHLong,FHLat);
         Point pointKFC = Point.fromLngLat(KFCLong,KFCLat);
@@ -78,7 +83,15 @@ public class DroneMap {
         HttpResponse<String> response = webConn.createResponse(webConn.createRequest(getURLStringForLandmarks()));
         FeatureCollection fc = FeatureCollection.fromJson(response.body());
         lfLandmarks = (ArrayList<Feature>) fc.features();
-        System.out.println(lfLandmarks);
+        assert lfLandmarks != null;
+        for(Feature feature: lfLandmarks) {
+            Point point = (Point) feature.geometry();
+            assert point != null;
+            double lng = point.coordinates().get(0);
+            double lat = point.coordinates().get(1);
+            LongLat landmark = new LongLat(lng, lat);
+            landmarks.add(landmark);
+        }
     }
 
     public void getNoFlyZone(){
@@ -86,6 +99,20 @@ public class DroneMap {
         HttpResponse<String> response = webConn.createResponse(webConn.createRequest(getURLStringForNoFlyZones()));
         FeatureCollection fc = FeatureCollection.fromJson(response.body());
         lfNoFlyZone = (ArrayList<Feature>) fc.features();
-        System.out.println(lfNoFlyZone);
+        assert lfNoFlyZone != null;
+        for (Feature feature: lfNoFlyZone){  //iterate each building(Polygon)
+            Polygon polygon = (Polygon) feature.geometry();
+            assert polygon != null;
+            for(int i = 0;i<polygon.coordinates().get(0).size()-1;i++){
+                Double lng1 = polygon.coordinates().get(0).get(i).coordinates().get(0);
+                Double lat1 = polygon.coordinates().get(0).get(i).coordinates().get(1);
+                Double lng2 = polygon.coordinates().get(0).get(i+1).coordinates().get(0);
+                Double lat2 = polygon.coordinates().get(0).get(i+1).coordinates().get(1);
+                LongLat point1 = new LongLat(lng1,lat1);
+                LongLat point2 = new LongLat(lng2,lat2);
+                Line line = new Line(point1,point2);
+                lines.add(line);
+            }
+        }
     }
 }
