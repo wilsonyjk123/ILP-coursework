@@ -14,13 +14,12 @@ public class Drone {
     Database database;
     DroneMap droneMap;
     WordParser wordParser;
-    LongLat startPosition;
     LongLat currentPosition;
-    LongLat nextPosition;
     LongLat targetPosition;
     ArrayList<Order> orders;
     ArrayList<LongLat> path;
     ArrayList<Point> pl = new ArrayList<>();
+    ArrayList<LongLat> pathChecker = new ArrayList<>();
     private int droneBattery = 1500;
     int cost = 0;
 
@@ -34,51 +33,38 @@ public class Drone {
         this.orders = database.readOrdersFromDatabase();
     }
     public void Move(){
-        for(int i =0;i<path.size()-1;i++){
-            startPosition = path.get(i);
-            targetPosition = path.get(i+1);
-            if(isNoFlyZone(startPosition.longitude,startPosition.latitude,targetPosition.longitude,targetPosition.latitude)){
-                if(isNoFlyZone(startPosition.longitude,startPosition.longitude,droneMap.landmarks.get(0).longitude,droneMap.landmarks.get(0).latitude)){
-                    path.add(i+1,droneMap.landmarks.get(1));//if the first landmark is not working then add the another one
+        int pathChecker = path.size();
+        int counter = 0;
+        System.out.println(path.size());
+        while(pathChecker != 1){
+            if(isNoFlyZone(path.get(counter).longitude, path.get(counter).latitude, path.get(counter+1).longitude, path.get(counter+1).latitude)){
+                if(isNoFlyZone(droneMap.landmarks.get(0).longitude,droneMap.landmarks.get(0).latitude,path.get(counter).longitude, path.get(counter).latitude)){
+                    path.add(counter+1, new LongLat(droneMap.landmarks.get(1).longitude,droneMap.landmarks.get(1).latitude));
                 }else{
-                    path.add(i+1,droneMap.landmarks.get(0));
+                    path.add(counter+1, new LongLat(droneMap.landmarks.get(0).longitude,droneMap.landmarks.get(0).latitude));
                 }
-                targetPosition = path.get(i+1);
+                counter = counter+2;
+            }else{
+                counter = counter+1;
             }
-            currentPosition = startPosition;
-            int offset = (int)(getAngle(startPosition,targetPosition))/10*10;
-            int pointer = 0;
-            while(!currentPosition.closeTo(targetPosition)){
-                if(getAngle(currentPosition,targetPosition)%10!=0){
-                    if(pointer%2==0){
-                        pointer = pointer+1;
-                        nextPosition = currentPosition.nextPosition(offset);
-                        pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
-                        pl.add(Point.fromLngLat(nextPosition.longitude,nextPosition.latitude));
-                        currentPosition = nextPosition;
-                        cost +=1;
-
-                    }else{
-                        pointer = pointer+1;
-                        nextPosition = currentPosition.nextPosition(offset+10);
-                        pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
-                        pl.add(Point.fromLngLat(nextPosition.longitude,nextPosition.latitude));
-                        currentPosition = nextPosition;
-                        cost +=1;
-                    }
-                }else{
-                    nextPosition = currentPosition.nextPosition( (int)(getAngle(startPosition,targetPosition)));
-                    pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
-                    pl.add(Point.fromLngLat(nextPosition.longitude,nextPosition.latitude));
-                    currentPosition = nextPosition;
-                    cost +=1;
-                }
-            }
-            cost +=1;
+            pathChecker-=1;
         }
+        System.out.println(path.size());
+        pl.add(Point.fromLngLat(droneMap.getATLong(),droneMap.getATLat()));
+        for(int i =0;i<path.size()-1;i++){
+            currentPosition = path.get(i);
+            targetPosition = path.get(i+1);
+            while(!currentPosition.closeTo(targetPosition)){
+                currentPosition = currentPosition.nextPosition(getAngle(currentPosition,targetPosition));
+                pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
+                cost = cost +1;
+            }
+            cost = cost + 1;
+        }
+        System.out.println(cost);
     }
 
-    public double getAngle(LongLat start, LongLat target){
+    public int getAngle(LongLat start, LongLat target){
         double tan = 0;
         if(target.longitude>start.longitude && target.latitude>start.latitude){
             tan = Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI;; //第一象限
@@ -91,33 +77,42 @@ public class Drone {
         }else if(target.longitude>start.longitude && target.latitude==start.latitude){
             tan = Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI;; //第一象限和第四象限分界线
         }else if(target.longitude==start.longitude && target.latitude>start.latitude){
-            tan = 90; //第一象限和第而象限分界线
+            tan = 90;
         }else if(target.longitude<start.longitude && target.latitude==start.latitude){
             tan = 180;
         }else if(target.longitude==start.longitude && target.latitude<start.latitude){
-            tan = 270; //第三象限和第四象限分界线
+            tan = 270;
         }
-        return tan;
+        int angle = (int)tan;
+        if(angle%10>=5){
+            angle = angle/10*10+10;
+        }else{
+            angle = angle/10*10;
+        }
+        if(angle ==360){
+            angle = 0;
+        }
+        return angle;
     }
-
-    //TODO 角度取区间值
-
     public String printRoute(){
         LineString lineString = LineString.fromLngLats(pl);
         Feature feature = Feature.fromGeometry(lineString);
         FeatureCollection featureCollection = FeatureCollection.fromFeature(feature);
-        String fc = featureCollection.toJson();
-        return fc;
+        return featureCollection.toJson();
     }
 
-
     public boolean isNoFlyZone(double lng1, double lat1, double lng2, double lat2){
-        Line2D line2D = new Line2D.Double();
-        boolean isNOFlyZone = false; //True if it does not pass the NFZ, False if it passes the NFZ
-        for(Line line:droneMap.lines){
-            isNOFlyZone = Line2D.linesIntersect(line.point1.longitude,line.point1.latitude,line.point2.longitude,line.point2.longitude,lng1,lat1,lng2,lat2);
+        boolean isCrossed = false;
+        ArrayList<Line2D> noFlyZone2D = droneMap.getNoFlyZone();
+        Line2D possiblePath = new Line2D.Double();
+        possiblePath.setLine(lng1, lat1, lng2, lat2);
+        for(Line2D line2D:noFlyZone2D){
+            isCrossed = line2D.intersectsLine(possiblePath);
+            if(isCrossed){
+                break;
+            }
         }
-        return isNOFlyZone;
+        return isCrossed;
     }
 
     public void sortOrders() throws SQLException {
@@ -190,6 +185,5 @@ public class Drone {
         getDeliverToLongLat();
         createCoordinate();
         droneMap.getLandMarks();
-        droneMap.getNoFlyZone();
     }
 }

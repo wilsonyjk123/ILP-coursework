@@ -2,6 +2,8 @@ package uk.ac.ed.inf;
 
 import com.mapbox.geojson.*;
 
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +21,9 @@ public class DroneMap {
     private final double BuccleuchLong = -3.184319;
     private final double BuccleuchLat = 55.942617;
     public ArrayList<Feature> lfLandmarks = new ArrayList<>();
-    public ArrayList<Feature> lfNoFlyZone = new ArrayList<>();
     public ArrayList<Point> confinementArea = new ArrayList<>();
-
-    public ArrayList<Line> lines = new ArrayList<>();
     public ArrayList<LongLat> landmarks = new ArrayList<>();
+    ArrayList<Line2D> line2DArrayList = new ArrayList<>();
 
     public String webPort;
 
@@ -94,25 +94,33 @@ public class DroneMap {
         }
     }
 
-    public void getNoFlyZone(){
+    public ArrayList<Line2D> getNoFlyZone(){
         WebConn webConn = new WebConn(webPort);
         HttpResponse<String> response = webConn.createResponse(webConn.createRequest(getURLStringForNoFlyZones()));
-        FeatureCollection fc = FeatureCollection.fromJson(response.body());
-        lfNoFlyZone = (ArrayList<Feature>) fc.features();
-        assert lfNoFlyZone != null;
-        for (Feature feature: lfNoFlyZone){  //iterate each building(Polygon)
-            Polygon polygon = (Polygon) feature.geometry();
+        FeatureCollection featureCollection = FeatureCollection.fromJson(response.body());
+        List<Feature> features = featureCollection.features();
+        assert features != null;
+        for(Feature feature:features){
+            Polygon polygon = (Polygon)feature.geometry();
             assert polygon != null;
-            for(int i = 0;i<polygon.coordinates().get(0).size()-1;i++){
-                Double lng1 = polygon.coordinates().get(0).get(i).coordinates().get(0);
-                Double lat1 = polygon.coordinates().get(0).get(i).coordinates().get(1);
-                Double lng2 = polygon.coordinates().get(0).get(i+1).coordinates().get(0);
-                Double lat2 = polygon.coordinates().get(0).get(i+1).coordinates().get(1);
-                LongLat point1 = new LongLat(lng1,lat1);
-                LongLat point2 = new LongLat(lng2,lat2);
-                Line line = new Line(point1,point2);
-                lines.add(line);
+            for(List<Point> listPoint:polygon.coordinates()){
+                ArrayList<Point2D> point2DS = new ArrayList<>();
+                for (Point point:listPoint){
+                    Point2D point2D = new Point2D.Double();
+                    point2D.setLocation(point.coordinates().get(0),point.coordinates().get(1));
+                    point2DS.add(point2D);
+                }
+                for (int i = 0;i<point2DS.size();i++){
+                    Line2D line2D = new Line2D.Double();
+                    if (i == point2DS.size()-1){
+                        line2D.setLine(point2DS.get(i),point2DS.get(0));
+                    }else {
+                        line2D.setLine(point2DS.get(i),point2DS.get(i+1));
+                    }
+                    line2DArrayList.add(line2D);
+                }
             }
         }
+        return line2DArrayList;
     }
 }
