@@ -16,7 +16,7 @@ public class App
 //        String year = args[2];
 //        String webPort = args[3];
 //        String databasePort = args[4];
-        Database database = new Database("9898","1527","15","8", "2022");
+        Database database = new Database("9898","1527","31","12", "2023");
         MenuParser menuParser = new MenuParser("9898");
         DroneMap droneMap = new DroneMap("9898");
         Drone drone = new Drone(droneMap,menuParser, database,droneMap);

@@ -1,8 +1,6 @@
 package uk.ac.ed.inf;
 import com.mapbox.geojson.*;
 import com.mapbox.geojson.Point;
-
-import java.awt.*;
 import java.awt.geom.Line2D;
 import java.sql.SQLException;
 import java.util.*;
@@ -20,7 +18,6 @@ public class Drone {
     ArrayList<LongLat> path;
     ArrayList<Point> pl = new ArrayList<>();
     ArrayList<LongLat> pathChecker = new ArrayList<>();
-    private int droneBattery = 1500;
     int cost = 0;
 
 
@@ -54,7 +51,7 @@ public class Drone {
         for(int i =0;i<path.size()-1;i++){
             currentPosition = path.get(i);
             targetPosition = path.get(i+1);
-            while(!currentPosition.closeTo(targetPosition)){
+            while(!currentPosition.closeTo(targetPosition)&&cost<=1500){
                 currentPosition = currentPosition.nextPosition(getAngle(currentPosition,targetPosition));
                 pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
                 cost = cost +1;

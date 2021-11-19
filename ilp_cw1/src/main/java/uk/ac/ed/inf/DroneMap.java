@@ -55,7 +55,8 @@ public class DroneMap {
     public double getBuccleuchLat(){ return BuccleuchLat; }
 
 //    public ArrayList<Feature> returnLfLandmarks(){ return lfLandmarks; }
-//
+//1
+
 //    public ArrayList<Feature> returnLfNoFlyZone(){ return lfNoFlyZone; }
 
 
