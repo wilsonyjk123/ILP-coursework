@@ -4,6 +4,7 @@ import com.mapbox.geojson.Point;
 import java.awt.geom.Line2D;
 import java.sql.SQLException;
 import java.util.*;
+import java.lang.Math;
 
 public class Drone {
     // Fields
@@ -11,14 +12,13 @@ public class Drone {
     MenuParser menuParser;
     Database database;
     DroneMap droneMap;
-    WordParser wordParser;
     LongLat currentPosition;
     LongLat targetPosition;
     ArrayList<Order> orders;
-    ArrayList<LongLat> path;
     ArrayList<Point> pl = new ArrayList<>();
-    ArrayList<LongLat> pathChecker = new ArrayList<>();
     int cost = 0;
+    int[] shift = new int[]{10,-10,20,-20,30,-30,40,-40,50,-50,60,-60,70,-70,80,-80,90,-90,100,-100,110,-110,120,-120,130,-130,140,-140,150,-150,160,-160,170,-170,180,-180,190,-190,200,-200,210,-210,220,-220,230,-230,240,-240,250,-250,260,-260,270,-270,280,-280,290,-290,300,-300,310,-310,320,-320,330,-330,340,-340,350,-350};
+
 
 
     // Class Constructor
@@ -29,50 +29,282 @@ public class Drone {
         this.droneMap = droneMap;
         this.orders = database.readOrdersFromDatabase();
     }
-    public void Move(){
-        int pathChecker = path.size();
-        int counter = 0;
-        System.out.println(path.size());
-        while(pathChecker != 1){
-            if(isNoFlyZone(path.get(counter).longitude, path.get(counter).latitude, path.get(counter+1).longitude, path.get(counter+1).latitude)){
-                if(isNoFlyZone(droneMap.landmarks.get(0).longitude,droneMap.landmarks.get(0).latitude,path.get(counter).longitude, path.get(counter).latitude)){
-                    path.add(counter+1, new LongLat(droneMap.landmarks.get(1).longitude,droneMap.landmarks.get(1).latitude));
-                }else{
-                    path.add(counter+1, new LongLat(droneMap.landmarks.get(0).longitude,droneMap.landmarks.get(0).latitude));
-                }
-                counter = counter+2;
-            }else{
-                counter = counter+1;
-            }
-            pathChecker-=1;
-        }
-        System.out.println(path.size());
-        pl.add(Point.fromLngLat(droneMap.getATLong(),droneMap.getATLat()));
-        for(int i =0;i<path.size()-1;i++){
-            currentPosition = path.get(i);
-            targetPosition = path.get(i+1);
-            while(!currentPosition.closeTo(targetPosition)&&cost<=1500){
-                currentPosition = currentPosition.nextPosition(getAngle(currentPosition,targetPosition));
-                pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
-                cost = cost +1;
-            }
-            cost = cost + 1;
-        }
-        System.out.println(cost);
+
+    public LongLat setStartPosition(){
+        return new LongLat(droneMap.getATLong(),droneMap.getATLat());
     }
+
+    public void findPath(){
+        //设置起点
+        currentPosition = setStartPosition();
+        //添加起点的点
+        pl.add(Point.fromLngLat(droneMap.getATLong(),droneMap.getATLat()));
+        int outOfBattery = 0;
+        int fullBattery = 0;
+        //对于每一个订单开始
+        for(Order order:orders){
+            //对于订单中每一个target
+            if(outOfBattery==1){
+                break;
+            }
+            System.out.println("order finished!");
+            for(LongLat target: order.routeLongLat){
+                targetPosition = target;
+                if(outOfBattery==1){
+                    break;
+                }
+                //每个target之间判断一次，查看是否需要landmark，假如过禁飞区则去landmark然后再去target
+                if(isNoFlyZone(currentPosition.longitude , currentPosition.latitude , targetPosition.longitude , targetPosition.latitude)&& isConfinementArea(currentPosition.longitude , currentPosition.latitude , targetPosition.longitude , targetPosition.latitude)){
+                    LongLat closestLandmark  = getClosestLandmark(targetPosition,currentPosition);
+                    //不接近终点就不停
+                    while (currentPosition.closeTo(closestLandmark)){
+                        //如果当前move没有进禁飞区
+                        if(cost>=2000){
+                            outOfBattery = 1;
+                            break;
+                        }
+                        if(!isNoFlyZone(currentPosition.longitude , currentPosition.latitude , targetPosition.longitude , targetPosition.latitude)){
+                            break;
+                        }
+                        if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).longitude , currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).latitude , currentPosition.longitude , currentPosition.latitude)){
+                            currentPosition = currentPosition.nextPosition(getAngle(currentPosition,closestLandmark));
+                            pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
+                            cost+=1;
+                        }else{
+                            //只要一直穿过禁飞区，就修正角度
+                            int counter = 0;
+                            int shiftAngle = getAngle(currentPosition,closestLandmark);
+                            while(isNoFlyZone(currentPosition.nextPosition(shiftAngle).longitude , currentPosition.nextPosition(shiftAngle).latitude , currentPosition.longitude , currentPosition.latitude)){
+
+                                shiftAngle = getAngle(currentPosition,closestLandmark) + shift[counter];
+                                if(shiftAngle<0){
+                                    shiftAngle = 360 - Math.abs(shift[counter]);
+                                }
+                                if(shiftAngle>350){
+                                    shiftAngle = shiftAngle % 360;
+                                }
+                                counter +=1;
+                            }
+                            currentPosition = currentPosition.nextPosition(shiftAngle);
+                            pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
+                            cost+=1;
+                        }
+                    }
+                    while(currentPosition.closeTo(target)){
+                        //如果当前move没有进禁飞区
+                        if(cost>=2000){
+                            outOfBattery = 1;
+                            break;
+                        }
+                        if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).longitude , currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).latitude , currentPosition.longitude , currentPosition.latitude) ){
+                            currentPosition = currentPosition.nextPosition(getAngle(currentPosition,targetPosition));
+                            pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
+                            cost+=1;
+                        }else{
+                            //只要一直穿过禁飞区，就修正角度
+                            int counter = 0;
+                            int shiftAngle = getAngle(currentPosition,targetPosition);
+                            while(isNoFlyZone(currentPosition.nextPosition(shiftAngle).longitude , currentPosition.nextPosition(shiftAngle).latitude , currentPosition.longitude , currentPosition.latitude)){
+                                shiftAngle = getAngle(currentPosition,targetPosition) + shift[counter];
+                                if(shiftAngle<0){
+                                    shiftAngle = 360 - Math.abs(shift[counter]);
+                                }
+                                if(shiftAngle>350){
+                                    shiftAngle = shiftAngle % 360;
+                                }
+                                counter +=1;
+                            }
+                            currentPosition = currentPosition.nextPosition(shiftAngle);
+                            pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
+                            cost += 1;
+                        }
+
+                    }
+
+                }else{
+                    //不接近终点就不停
+
+                    while(currentPosition.closeTo(targetPosition)){
+                        if(cost>=2000){
+                            outOfBattery = 1;
+                            break;
+                        }
+                        //如果当前move没有进禁飞区
+                        if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).longitude , currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).latitude , currentPosition.longitude , currentPosition.latitude) ){
+                            currentPosition = currentPosition.nextPosition(getAngle(currentPosition,targetPosition));
+                            pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
+                            cost+=1;
+                        }
+                        else{
+                            //只要一直穿过禁飞区，就修正角度
+                            int counter = 0;
+                            int shiftAngle = getAngle(currentPosition,targetPosition);
+                            while(isNoFlyZone(currentPosition.nextPosition(shiftAngle).longitude , currentPosition.nextPosition(shiftAngle).latitude , currentPosition.longitude , currentPosition.latitude)){
+                                shiftAngle = getAngle(currentPosition,targetPosition) + shift[counter];
+                                if(shiftAngle<0){
+                                    shiftAngle = 360 - Math.abs(shift[counter]);
+                                }
+                                if(shiftAngle>350){
+                                    shiftAngle = shiftAngle % 360;
+                                }
+                                counter +=1;
+                            }
+                            currentPosition = currentPosition.nextPosition(shiftAngle);
+                            pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
+                            cost += 1;
+                        }
+                    }
+                }
+                cost += 1;
+            }
+        }
+        if(outOfBattery == 0){
+            fullBattery = 1;
+        }
+
+        //回到at，如果电量不足50
+        if(outOfBattery==1 || fullBattery==1){
+            if(isNoFlyZone(currentPosition.longitude , currentPosition.latitude , droneMap.getATLong() , droneMap.getATLat()) &&
+                    isConfinementArea(currentPosition.longitude , currentPosition.latitude , droneMap.getATLong() , droneMap.getATLat())){
+                LongLat closestLandmark  = getClosestLandmark(new LongLat(droneMap.getATLong() , droneMap.getATLat()),currentPosition);
+                while(currentPosition.closeTo(closestLandmark)){
+                    if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).longitude , currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).latitude , currentPosition.longitude , currentPosition.latitude) ){
+                        //System.out.println(111);
+                        //System.out.println(printRoute());
+                        currentPosition = currentPosition.nextPosition(getAngle(currentPosition,closestLandmark));
+
+                    }else{
+                        //只要一直穿过禁飞区，就修正角度
+                        int counter = 0;
+                        int shiftAngle = getAngle(currentPosition,closestLandmark);
+                        while(isNoFlyZone(currentPosition.nextPosition(shiftAngle).longitude , currentPosition.nextPosition(shiftAngle).latitude , currentPosition.longitude , currentPosition.latitude)){
+                            //System.out.println("asdhjkasdkjh");
+
+                            shiftAngle = getAngle(currentPosition,closestLandmark) + shift[counter];
+                            if(shiftAngle<0){
+                                shiftAngle = 360 - Math.abs(shift[counter]);
+                            }
+                            if(shiftAngle>350){
+                                shiftAngle = shiftAngle % 360;
+                            }
+                            counter +=1;
+                        }
+                        currentPosition = currentPosition.nextPosition(shiftAngle);
+                    }
+                    pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
+                    cost+=1;
+                }
+                while(currentPosition.closeTo(new LongLat(droneMap.getATLong(), droneMap.getATLat()))){
+                    //如果当前move没有进禁飞区
+
+                    if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat()))).longitude , currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat()))).latitude , currentPosition.longitude , currentPosition.latitude) ){
+                        currentPosition = currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat())));
+                        pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
+                        cost+=1;
+                    }else{
+                        //只要一直穿过禁飞区，就修正角度
+                        int counter = 0;
+                        int shiftAngle = getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat()));
+                        while(isNoFlyZone(currentPosition.nextPosition(shiftAngle).longitude , currentPosition.nextPosition(shiftAngle).latitude , currentPosition.longitude , currentPosition.latitude)){
+                            shiftAngle = getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat())) + shift[counter];
+                            if(shiftAngle<0){
+                                shiftAngle = 360 - Math.abs(shift[counter]);
+                            }
+                            if(shiftAngle>350){
+                                shiftAngle = shiftAngle % 360;
+                            }
+                            counter +=1;
+                        }
+                        currentPosition = currentPosition.nextPosition(shiftAngle);
+                        pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
+                        cost += 1;
+                    }
+
+                }
+
+            }else{
+                while(currentPosition.closeTo(new LongLat(droneMap.getATLong(), droneMap.getATLat()))){
+                    //如果当前move没有进禁飞区
+                    if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat()))).longitude , currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat()))).latitude , currentPosition.longitude , currentPosition.latitude) ){
+                        currentPosition = currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat())));
+                        pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
+                        cost+=1;
+                    }
+                    else{
+                        //只要一直穿过禁飞区，就修正角度
+                        int counter = 0;
+                        int shiftAngle = getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat()));
+                        while(isNoFlyZone(currentPosition.nextPosition(shiftAngle).longitude , currentPosition.nextPosition(shiftAngle).latitude , currentPosition.longitude , currentPosition.latitude)){
+                            shiftAngle = getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat())) + shift[counter];
+                            if(shiftAngle<0){
+                                shiftAngle = 360 - Math.abs(shift[counter]);
+                            }
+                            if(shiftAngle>350){
+                                shiftAngle = shiftAngle % 360;
+                            }
+                            counter +=1;
+                        }
+                        currentPosition = currentPosition.nextPosition(shiftAngle);
+                        pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
+                        cost += 1;
+                    }
+                }
+            }
+        }
+    }
+
+    //找更小的landmark
+    public LongLat getClosestLandmark(LongLat targetPosition,LongLat currentPosition){
+        ArrayList<LongLat> landmarks = droneMap.getLandMarks();
+        int flag0 = 0;
+        int flag1 = 0;
+//        System.out.println(targetPosition.longitude);
+//        System.out.println(targetPosition.latitude);
+//        System.out.println(currentPosition.longitude);
+//        System.out.println(currentPosition.latitude);
+//        System.out.println("--------------------------");
+//        System.out.println(landmarks.get(0).longitude);
+//        System.out.println(landmarks.get(0).latitude);
+
+        //System.out.println(bool);
+        if(!isNoFlyZone(currentPosition.longitude,currentPosition.latitude,landmarks.get(0).longitude,landmarks.get(0).latitude)){
+            flag0 = 1;
+        }
+        if(!isNoFlyZone(currentPosition.longitude,currentPosition.latitude,landmarks.get(1).longitude,landmarks.get(1).latitude)){
+            flag1 = 1;
+        }
+//        System.out.println(flag0);
+//        System.out.println(flag1);
+        LongLat landmark = null;
+        if(flag0 == 1 && flag1 == 1){
+            if(targetPosition.distanceTo(landmarks.get(0))<targetPosition.distanceTo(landmarks.get(1))){
+                landmark =  landmarks.get(0);
+            }else{
+                landmark =  landmarks.get(1);
+            }
+        }else if(flag0 == 1){
+            landmark = landmarks.get(0);
+        }else if(flag1 == 1){
+            landmark = landmarks.get(1);
+        }
+//        System.out.println(landmark);
+        return landmark;
+    }
+
+
 
     public int getAngle(LongLat start, LongLat target){
         double tan = 0;
         if(target.longitude>start.longitude && target.latitude>start.latitude){
-            tan = Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI;; //第一象限
+            tan = Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI; //第一象限
         }else if(target.longitude<start.longitude && target.latitude>start.latitude){
-            tan = (double)180-Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI;; //第二象限
+            tan = (double)180-Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI; //第二象限
         }else if(target.longitude<start.longitude && target.latitude<start.latitude){
-            tan = (double)180+Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI;; //第三象限
+            tan = (double)180+Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI; //第三象限
         }else if(target.longitude>start.longitude && target.latitude<start.latitude){
-            tan = (double)360-Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI;; //第四象限
+            tan = (double)360-Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI; //第四象限
         }else if(target.longitude>start.longitude && target.latitude==start.latitude){
-            tan = Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI;; //第一象限和第四象限分界线
+            tan = Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI; //第一象限和第四象限分界线
         }else if(target.longitude==start.longitude && target.latitude>start.latitude){
             tan = 90;
         }else if(target.longitude<start.longitude && target.latitude==start.latitude){
@@ -90,7 +322,10 @@ public class Drone {
             angle = 0;
         }
         return angle;
+
     }
+
+    //打印路线
     public String printRoute(){
         LineString lineString = LineString.fromLngLats(pl);
         Feature feature = Feature.fromGeometry(lineString);
@@ -98,12 +333,14 @@ public class Drone {
         return featureCollection.toJson();
     }
 
-    public boolean isNoFlyZone(double lng1, double lat1, double lng2, double lat2){
+
+    //confinementArea 判断
+    public boolean isConfinementArea(double lng1, double lat1, double lng2, double lat2){
         boolean isCrossed = false;
-        ArrayList<Line2D> noFlyZone2D = droneMap.getNoFlyZone();
+        ArrayList<Line2D> confinementArea2D = droneMap.getConfinementArea();
         Line2D possiblePath = new Line2D.Double();
         possiblePath.setLine(lng1, lat1, lng2, lat2);
-        for(Line2D line2D:noFlyZone2D){
+        for(Line2D line2D:confinementArea2D){
             isCrossed = line2D.intersectsLine(possiblePath);
             if(isCrossed){
                 break;
@@ -112,38 +349,65 @@ public class Drone {
         return isCrossed;
     }
 
+
+    //禁飞区判断
+    public boolean isNoFlyZone(double lng1, double lat1, double lng2, double lat2){
+        boolean isCrossed = false;
+        ArrayList<Line2D> noFlyZone2D = droneMap.getNoFlyZone();
+        Line2D possiblePath = new Line2D.Double();
+        possiblePath.setLine(lng1, lat1, lng2, lat2);
+        for(Line2D line2D:noFlyZone2D){
+            isCrossed = line2D.intersectsLine(possiblePath);
+            if(isCrossed){
+//                System.out.println(line2D.getP1());
+//                System.out.println(line2D.getP2());
+                break;
+            }
+        }
+        System.out.println(isCrossed);
+        return isCrossed;
+    }
+
+
+    //TODO sort orders based on the price
     public void sortOrders() throws SQLException {
         Comparator<Order> c = Collections.reverseOrder();
         orders.sort(c);
     }
+
+    //TODO find the order pick up locations(1 or 2)
     public void findOrderShopLocations(){
-        for(int i = 0;i<orders.size();i++){
-            orders.get(i).orderShopLocations = new ArrayList<>();
-            for(int j = 0;j<orders.get(i).item.size();j++){
-                String name = orders.get(i).item.get(j);
+        for (Order order : orders) {
+            order.orderShopLocations = new ArrayList<>();
+            for (int j = 0; j < order.item.size(); j++) { //有可能是需要去两个商店取餐
+                String name = order.item.get(j);
                 ArrayList<MenuParser.Menu> menusList = menuParser.parseMenus();
-                try{
-                    for (MenuParser.Menu mi: menusList){
-                        for(MenuParser.Menu.Item k: mi.menu){
-                            if(k.item.equals(name)){
-                                if(orders.get(i).orderShopLocations.contains(mi.location)){
-                                }else {
-                                    orders.get(i).orderShopLocations.add(mi.location);
+                try {
+                    for (MenuParser.Menu mi : menusList) {
+                        for (MenuParser.Menu.Item k : mi.menu) {
+                            if (k.item.equals(name)) {
+                                if (order.orderShopLocations.contains(mi.location)) {
+                                    continue;
+                                } else {
+                                    order.orderShopLocations.add(mi.location);
                                 }
                             }
                         }
                     }
-                }catch (IllegalArgumentException | NullPointerException e){
+                } catch (IllegalArgumentException | NullPointerException e) {
                     e.printStackTrace();
                     System.exit(1); // Unsuccessful termination
                 }
             }
+            //System.out.println(orders.get(i).orderShopLocations);
         }
     }
 
-    public void getShopLongLat(){
+    //获取每个订单的pick up 经纬度和delivery to 经纬度，并顺序排列（先pick up 再delivery to）
+    public void getRouteLongLat(){
         for (Order order : orders) {
             order.routeLongLat = new ArrayList<>();
+            //System.out.println(order.orderShopLocations.size());
             for (int j = 0; j < order.orderShopLocations.size(); j++) {
                 String threeWord = order.orderShopLocations.get(j);
                 WordParser wordParser = new WordParser(menuParser.webPort);
@@ -153,11 +417,6 @@ public class Drone {
                 LongLat longLat = new LongLat(lng, lat);
                 order.routeLongLat.add(longLat);
             }
-        }
-    }
-
-    public void getDeliverToLongLat(){
-        for (Order order : orders) {
             String deliverTo = order.deliverTo;
             WordParser wordParser = new WordParser(menuParser.webPort);
             WordParser.Word word = wordParser.parseWord(deliverTo);
@@ -165,22 +424,20 @@ public class Drone {
             double lat = word.coordinates.lat;
             LongLat longLat = new LongLat(lng, lat);
             order.routeLongLat.add(longLat);
+            //System.out.println(order.routeLongLat);
         }
     }
-    public void createCoordinate(){
-        path = new ArrayList<>();
-        path.add(new LongLat(droneMap.getATLong(),droneMap.getATLat()));
-        for(Order order:orders){
-            path.addAll(order.routeLongLat);
-        }
-        path.add(new LongLat(droneMap.getATLong(),droneMap.getATLat()));
-    }
+
+
+    //关于是否考虑剩余电量完成剩余订单并返回at
+    //在每走一步之后，我们进行一次判断，如果剩余电量还有50的话就直接返回at
+
+
+
+
     public void preparation() throws SQLException {
-        sortOrders();
-        findOrderShopLocations();
-        getShopLongLat();
-        getDeliverToLongLat();
-        createCoordinate();
-        droneMap.getLandMarks();
+        sortOrders(); //订单排序
+        findOrderShopLocations(); //找到pick up三字地址
+        getRouteLongLat(); //set每个订单的target
     }
 }

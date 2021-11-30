@@ -59,7 +59,7 @@ public class Database {
         ResultSet rs = psOrdersQuery.executeQuery();
         ArrayList<String> str = new ArrayList<>();
         while (rs.next()){
-            String order = rs.getString("orderNo");
+            String order  = rs.getString("orderNo");
             String it = rs.getString("item");
             str.add(it);
             //System.out.println("orders table INFO: " + order + "||" + it);

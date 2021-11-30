@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DroneMap {
-    // private fields
-    private final double ATLong = -3.186874;
-    private final double ATLat = 55.944494;
     private final double FHLong = -3.192473;
     private final double FHLat = 55.946233;
     private final double KFCLong = -3.184319;
@@ -23,7 +20,8 @@ public class DroneMap {
     public ArrayList<Feature> lfLandmarks = new ArrayList<>();
     public ArrayList<Point> confinementArea = new ArrayList<>();
     public ArrayList<LongLat> landmarks = new ArrayList<>();
-    ArrayList<Line2D> line2DArrayList = new ArrayList<>();
+    ArrayList<Line2D> line2DArrayListNoFlyZone = new ArrayList<>();
+    ArrayList<Line2D> line2DArrayListConfinementArea = new ArrayList<>();
 
     public String webPort;
 
@@ -34,9 +32,11 @@ public class DroneMap {
     }
 
     // Getters
-    public double getATLong(){ return ATLong; }
+    public double getATLong(){ // private fields
+        return -3.186874; }
 
-    public double getATLat(){ return ATLat; }
+    public double getATLat(){
+        return 55.944494; }
 
     public double getFHLong(){ return FHLong; }
 
@@ -67,7 +67,7 @@ public class DroneMap {
     }
 
     // Methods
-    public void getConfinementArea(){
+    public ArrayList<Line2D> getConfinementArea(){
         Point pointFH = Point.fromLngLat(FHLong,FHLat);
         Point pointKFC = Point.fromLngLat(KFCLong,KFCLat);
         Point pointMeadows = Point.fromLngLat(MeadowsLong,MeadowsLat);
@@ -77,9 +77,25 @@ public class DroneMap {
         confinementArea.add(pointKFC);
         confinementArea.add(pointMeadows);
         confinementArea.add(pointBuccleuch);
+        ArrayList<Point2D> point2DS = new ArrayList<>();
+        for (Point point:confinementArea){
+            Point2D point2D = new Point2D.Double();
+            point2D.setLocation(point.coordinates().get(0),point.coordinates().get(1));
+            point2DS.add(point2D);
+        }
+        for (int i = 0;i<point2DS.size();i++){
+            Line2D line2D = new Line2D.Double();
+            if (i == point2DS.size()-1){
+                line2D.setLine(point2DS.get(i),point2DS.get(0));
+            }else {
+                line2D.setLine(point2DS.get(i),point2DS.get(i+1));
+            }
+            line2DArrayListConfinementArea.add(line2D);
+        }
+        return line2DArrayListConfinementArea;
     }
 
-    public void getLandMarks(){
+    public ArrayList<LongLat> getLandMarks(){
         WebConn webConn = new WebConn(webPort);
         HttpResponse<String> response = webConn.createResponse(webConn.createRequest(getURLStringForLandmarks()));
         FeatureCollection fc = FeatureCollection.fromJson(response.body());
@@ -93,6 +109,7 @@ public class DroneMap {
             LongLat landmark = new LongLat(lng, lat);
             landmarks.add(landmark);
         }
+        return landmarks;
     }
 
     public ArrayList<Line2D> getNoFlyZone(){
@@ -118,10 +135,10 @@ public class DroneMap {
                     }else {
                         line2D.setLine(point2DS.get(i),point2DS.get(i+1));
                     }
-                    line2DArrayList.add(line2D);
+                    line2DArrayListNoFlyZone.add(line2D);
                 }
             }
         }
-        return line2DArrayList;
+        return line2DArrayListNoFlyZone;
     }
 }
