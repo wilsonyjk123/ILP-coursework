@@ -1,9 +1,6 @@
 package uk.ac.ed.inf;
-
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Database {
     String dataBasePort;
@@ -37,7 +34,6 @@ public class Database {
         PreparedStatement psOrdersQuery = conn.prepareStatement(ordersQuery);
         ResultSet rs = psOrdersQuery.executeQuery();
         while (rs.next()) {
-            //TODO 数据库每读一行建立一个order对象
             String orderNo = rs.getString("orderNo");
             String delivery = rs.getString("deliveryDate");
             String cus = rs.getString("customer");
@@ -46,65 +42,67 @@ public class Database {
             int price = getDeliveryCost(items);
             Order order = new Order(orderNo,delivery,cus,deliverT,items,price);
             orders.add(order);
-            //System.out.println("orders table INFO: " + order + "||" + delivery + "||" + cus + "||" + deliverT);
         }
         return orders;
     }
 
-//    public void writeDeliveriesTable(ArrayList<Order> orders) throws SQLException{
-//        //TODO We use the DatabaseMetaData to see if it has a students table.
-//        Connection conn = DriverManager.getConnection(getJDBCString());
-//        Statement statement = conn.createStatement();
-//        DatabaseMetaData databaseMetadata = conn.getMetaData();
-//        // Note: must capitalise STUDENTS in the call to getTables
-//        ResultSet resultSet =
-//                databaseMetadata.getTables(null, null, "DELIVERIES", null);
-//        // If the resultSet is not empty then the table exists, so we can drop it
-//        if (resultSet.next()) {
-//            statement.execute("drop table deliveries");
-//        }
-//        statement.execute("create table deliveries("+
-//                "orderNo char(8),"+
-//                "deliveredTo varchar(19)," +
-//                "costInPence int)");
-//        PreparedStatement psDeliveries = conn.prepareStatement(
-//                "insert into deliveries values (?, ?, ?)");
-//        for (Order order : orders) {
-//            if(order.getIsDelivered()){
-//                psDeliveries.setString(1, order.getOrderNo());
-//                psDeliveries.setString(2, order.getDeliverTo());
-//                psDeliveries.setInt(3, order.getPrice());
-//                psDeliveries.execute();
-//            }
-//
-//        }
-//
-//        resultSet =
-//                databaseMetadata.getTables(null, null, "FLIGHTPATH", null);
-//        // If the resultSet is not empty then the table exists, so we can drop it
-//        if (resultSet.next()) {
-//            statement.execute("drop table flightpath");
-//        }
-//        statement.execute("create table flightpath(orderNo char(8)," +
-//                "fromLongitude double," +
-//                "fromLatitude double," +
-//                "angle integer," +
-//                "toLongitude double," +
-//                "toLatitude double)");
-//        PreparedStatement psFlightpath = conn.prepareStatement(
-//                "insert into flightpath values (?, ?, ?, ?, ?, ?)");
-//        for (Order order : orders) {
-//            if(order.getIsDelivered()){
-//                psDeliveries.setString(1, order.getOrderNo());
-//                psDeliveries.setDouble(2, order.getDeliverTo());
-//                psDeliveries.setDouble(3, order.getPrice());
-//                psDeliveries.execute();
-//            }
-//
-//        }
-//
-//
-//    }
+    public void writeDeliveriesTable(ArrayList<Order> orders) throws SQLException{
+        //TODO We use the DatabaseMetaData to see if it has a students table.
+        Connection conn = DriverManager.getConnection(getJDBCString());
+        Statement statement = conn.createStatement();
+        DatabaseMetaData databaseMetadata = conn.getMetaData();
+        // Note: must capitalise STUDENTS in the call to getTables
+        ResultSet resultSet =
+                databaseMetadata.getTables(null, null, "DELIVERIES", null);
+        // If the resultSet is not empty then the table exists, so we can drop it
+        if (resultSet.next()) {
+            statement.execute("drop table deliveries");
+        }
+        statement.execute("create table deliveries("+
+                "orderNo char(8),"+
+                "deliveredTo varchar(19)," +
+                "costInPence int)");
+        PreparedStatement psDeliveries = conn.prepareStatement(
+                "insert into deliveries values (?, ?, ?)");
+        for (Order order : orders) {
+            if(order.getIsDelivered()){
+                psDeliveries.setString(1, order.getOrderNo());
+                psDeliveries.setString(2, order.getDeliverTo());
+                psDeliveries.setInt(3, order.getPrice());
+                psDeliveries.execute();
+            }
+
+        }
+
+        resultSet =
+                databaseMetadata.getTables(null, null, "FLIGHTPATH", null);
+        // If the resultSet is not empty then the table exists, so we can drop it
+        if (resultSet.next()) {
+            statement.execute("drop table flightpath");
+        }
+        statement.execute("create table flightpath(orderNo char(8)," +
+                "fromLongitude double," +
+                "fromLatitude double," +
+                "angle integer," +
+                "toLongitude double," +
+                "toLatitude double)");
+        PreparedStatement psFlightpath = conn.prepareStatement(
+                "insert into flightpath values (?, ?, ?, ?, ?, ?)");
+        for (Order order : orders) {
+            if(order.getIsDelivered()){
+                psDeliveries.setString(1, order.getOrderNo());
+                psDeliveries.setDouble(2, );
+                psDeliveries.setDouble(3, );
+                psDeliveries.setInt(4,);
+                psDeliveries.setDouble(5, );
+                psDeliveries.setDouble(6, );
+                psDeliveries.execute();
+            }
+
+        }
+
+
+    }
 
     public ArrayList<String> readOrderDetailsFromDatabase(String orderNo) throws SQLException {
         final String orderDetailsQuery = "select * from orderDetails where orderNo=(?)";
