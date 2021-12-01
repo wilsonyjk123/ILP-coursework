@@ -26,7 +26,7 @@ public class Database {
         return "jdbc:derby://localhost:" + dataBasePort + "/derbyDB";
     }
 
-
+    //
     public ArrayList<Order> readOrdersFromDatabase() throws SQLException {
         ArrayList<Order> orders = new ArrayList<>();
         final String ordersQuery = "select * from orders where deliveryDate='" + dateString + "'";
@@ -87,7 +87,6 @@ public class Database {
                 psDeliveries.setInt(3, order.getPrice());
                 psDeliveries.execute();
             }
-
         }
     }
 

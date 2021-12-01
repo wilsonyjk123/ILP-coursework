@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DroneMap {
+
     private final double FHLong = -3.192473;
     private final double FHLat = 55.946233;
     private final double KFCLong = -3.184319;
@@ -26,7 +27,6 @@ public class DroneMap {
     ArrayList<Line2D> line2DArrayListConfinementArea = new ArrayList<>();
 
     public String webPort;
-
 
     // Class Constructor
     DroneMap(String webPort){
@@ -62,7 +62,11 @@ public class DroneMap {
         return "http://localhost:" + webPort + "/buildings/landmarks.geojson";
     }
 
-    // Methods
+    /**
+     *
+     *
+     *
+     * */
     public ArrayList<Line2D> getConfinementArea(){
         Point pointFH = Point.fromLngLat(getFHLong(),getFHLat());
         Point pointKFC = Point.fromLngLat(getKFCLong(),getKFCLat());

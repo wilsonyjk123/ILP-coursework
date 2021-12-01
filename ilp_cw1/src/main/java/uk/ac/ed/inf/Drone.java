@@ -380,8 +380,6 @@ public class Drone {
         return landmark;
     }
 
-
-
     public int getAngle(LongLat start, LongLat target){
         double tan = 0;
         if(target.longitude>start.longitude && target.latitude>start.latitude){
@@ -414,7 +412,6 @@ public class Drone {
 
     }
 
-
     //confinementArea 判断
     public boolean isConfinementArea(double lng1, double lat1, double lng2, double lat2){
         boolean isCrossed = false;
@@ -430,8 +427,6 @@ public class Drone {
         return isCrossed;
     }
 
-
-    //禁飞区判断
     public boolean isNoFlyZone(double lng1, double lat1, double lng2, double lat2){
         boolean isCrossed = false;
         ArrayList<Line2D> noFlyZone2D = droneMap.getNoFlyZone();
@@ -445,7 +440,6 @@ public class Drone {
         }
         return isCrossed;
     }
-
 
     //TODO sort orders based on the price
     public void sortOrders() throws SQLException {
@@ -477,7 +471,6 @@ public class Drone {
                     System.exit(1); // Unsuccessful termination
                 }
             }
-            //System.out.println(orders.get(i).orderShopLocations);
         }
     }
 
@@ -485,7 +478,6 @@ public class Drone {
     public void getRouteLongLat(){
         for (Order order : orders) {
             order.setRouteLongLat(new ArrayList<>());
-            //System.out.println(order.orderShopLocations.size());
             for (int j = 0; j < order.getOrderShopLocations().size(); j++) {
                 String threeWord = order.getOrderShopLocations().get(j);
                 WordParser wordParser = new WordParser(menuParser.webPort);
@@ -502,16 +494,8 @@ public class Drone {
             double lat = word.coordinates.lat;
             LongLat longLat = new LongLat(lng, lat);
             order.getRouteLongLat().add(longLat);
-            //System.out.println(order.routeLongLat);
         }
     }
-
-
-    //关于是否考虑剩余电量完成剩余订单并返回at
-    //在每走一步之后，我们进行一次判断，如果剩余电量还有50的话就直接返回at
-
-
-
 
     public void preparation() throws SQLException {
         sortOrders(); //订单排序

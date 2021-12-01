@@ -1,6 +1,7 @@
 package uk.ac.ed.inf;
 
 public class FlightPath {
+
     private final String orderNo;
     private final double fromLongitude;
     private final double fromLatitude;
