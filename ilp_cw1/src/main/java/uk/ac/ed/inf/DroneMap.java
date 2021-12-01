@@ -54,12 +54,6 @@ public class DroneMap {
 
     public double getBuccleuchLat(){ return BuccleuchLat; }
 
-//    public ArrayList<Feature> returnLfLandmarks(){ return lfLandmarks; }
-//1
-
-//    public ArrayList<Feature> returnLfNoFlyZone(){ return lfNoFlyZone; }
-
-
     public String getURLStringForNoFlyZones(){ return "http://localhost:" + webPort + "/buildings/no-fly-zones.geojson"; }
 
     public String getURLStringForLandmarks(){
@@ -68,10 +62,10 @@ public class DroneMap {
 
     // Methods
     public ArrayList<Line2D> getConfinementArea(){
-        Point pointFH = Point.fromLngLat(FHLong,FHLat);
-        Point pointKFC = Point.fromLngLat(KFCLong,KFCLat);
-        Point pointMeadows = Point.fromLngLat(MeadowsLong,MeadowsLat);
-        Point pointBuccleuch = Point.fromLngLat(BuccleuchLong,BuccleuchLat);
+        Point pointFH = Point.fromLngLat(getFHLong(),getFHLat());
+        Point pointKFC = Point.fromLngLat(getKFCLong(),getKFCLat());
+        Point pointMeadows = Point.fromLngLat(getMeadowsLong(),getMeadowsLat());
+        Point pointBuccleuch = Point.fromLngLat(getBuccleuchLong(),getBuccleuchLat());
         confinementArea = new ArrayList<>();
         confinementArea.add(pointFH);
         confinementArea.add(pointKFC);

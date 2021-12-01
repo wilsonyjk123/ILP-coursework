@@ -44,7 +44,7 @@ public class LongLat {
      * @return true if the points are close to each other with the given tolerance value and vice versa
      */
     public boolean closeTo(LongLat longLat){
-        return !(distanceTo(longLat) < 0.00015);
+        return (distanceTo(longLat) < 0.00015);
     }
 
     /**

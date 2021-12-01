@@ -47,19 +47,16 @@ public class Drone {
             if(outOfBattery==1){
                 break;
             }
-            System.out.println("order finished!");
-            for(LongLat target: order.routeLongLat){
+            int routeCounter = 0;
+            for(LongLat target: order.getRouteLongLat()){
                 targetPosition = target;
-                if(outOfBattery==1){
-                    break;
-                }
                 //每个target之间判断一次，查看是否需要landmark，假如过禁飞区则去landmark然后再去target
                 if(isNoFlyZone(currentPosition.longitude , currentPosition.latitude , targetPosition.longitude , targetPosition.latitude)&& isConfinementArea(currentPosition.longitude , currentPosition.latitude , targetPosition.longitude , targetPosition.latitude)){
                     LongLat closestLandmark  = getClosestLandmark(targetPosition,currentPosition);
                     //不接近终点就不停
-                    while (currentPosition.closeTo(closestLandmark)){
+                    while (!currentPosition.closeTo(closestLandmark)){
                         //如果当前move没有进禁飞区
-                        if(cost>=2000){
+                        if(cost>=1450){
                             outOfBattery = 1;
                             break;
                         }
@@ -90,9 +87,9 @@ public class Drone {
                             cost+=1;
                         }
                     }
-                    while(currentPosition.closeTo(target)){
+                    while(!currentPosition.closeTo(target)){
                         //如果当前move没有进禁飞区
-                        if(cost>=2000){
+                        if(cost>=1450){
                             outOfBattery = 1;
                             break;
                         }
@@ -118,14 +115,13 @@ public class Drone {
                             pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
                             cost += 1;
                         }
-
                     }
-
+                    if(currentPosition.closeTo(targetPosition)) {
+                        routeCounter += 1;
+                    }
                 }else{
-                    //不接近终点就不停
-
-                    while(currentPosition.closeTo(targetPosition)){
-                        if(cost>=2000){
+                    while(!currentPosition.closeTo(targetPosition)){
+                        if(cost>=1450){
                             outOfBattery = 1;
                             break;
                         }
@@ -154,8 +150,21 @@ public class Drone {
                             cost += 1;
                         }
                     }
+                    if(currentPosition.closeTo(targetPosition)) {
+                        routeCounter += 1;
+                    }
+                }
+                //如果订单未完成，直接break
+                if(outOfBattery==1){
+                    break;
                 }
                 cost += 1;
+            }
+            if(routeCounter == order.getRouteLongLat().size()){
+                order.setIsDelivered(true);
+                System.out.println("The order("+order.getOrderNo()+") has been finished");
+            }else{
+                System.out.println("We did not finish all the orders");
             }
         }
         if(outOfBattery == 0){
@@ -167,7 +176,7 @@ public class Drone {
             if(isNoFlyZone(currentPosition.longitude , currentPosition.latitude , droneMap.getATLong() , droneMap.getATLat()) &&
                     isConfinementArea(currentPosition.longitude , currentPosition.latitude , droneMap.getATLong() , droneMap.getATLat())){
                 LongLat closestLandmark  = getClosestLandmark(new LongLat(droneMap.getATLong() , droneMap.getATLat()),currentPosition);
-                while(currentPosition.closeTo(closestLandmark)){
+                while(!currentPosition.closeTo(closestLandmark)){
                     if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).longitude , currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).latitude , currentPosition.longitude , currentPosition.latitude) ){
                         //System.out.println(111);
                         //System.out.println(printRoute());
@@ -194,7 +203,7 @@ public class Drone {
                     pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
                     cost+=1;
                 }
-                while(currentPosition.closeTo(new LongLat(droneMap.getATLong(), droneMap.getATLat()))){
+                while(!currentPosition.closeTo(new LongLat(droneMap.getATLong(), droneMap.getATLat()))){
                     //如果当前move没有进禁飞区
 
                     if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat()))).longitude , currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat()))).latitude , currentPosition.longitude , currentPosition.latitude) ){
@@ -223,7 +232,7 @@ public class Drone {
                 }
 
             }else{
-                while(currentPosition.closeTo(new LongLat(droneMap.getATLong(), droneMap.getATLat()))){
+                while(!currentPosition.closeTo(new LongLat(droneMap.getATLong(), droneMap.getATLat()))){
                     //如果当前move没有进禁飞区
                     if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat()))).longitude , currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat()))).latitude , currentPosition.longitude , currentPosition.latitude) ){
                         currentPosition = currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat())));
@@ -258,23 +267,13 @@ public class Drone {
         ArrayList<LongLat> landmarks = droneMap.getLandMarks();
         int flag0 = 0;
         int flag1 = 0;
-//        System.out.println(targetPosition.longitude);
-//        System.out.println(targetPosition.latitude);
-//        System.out.println(currentPosition.longitude);
-//        System.out.println(currentPosition.latitude);
-//        System.out.println("--------------------------");
-//        System.out.println(landmarks.get(0).longitude);
-//        System.out.println(landmarks.get(0).latitude);
 
-        //System.out.println(bool);
         if(!isNoFlyZone(currentPosition.longitude,currentPosition.latitude,landmarks.get(0).longitude,landmarks.get(0).latitude)){
             flag0 = 1;
         }
         if(!isNoFlyZone(currentPosition.longitude,currentPosition.latitude,landmarks.get(1).longitude,landmarks.get(1).latitude)){
             flag1 = 1;
         }
-//        System.out.println(flag0);
-//        System.out.println(flag1);
         LongLat landmark = null;
         if(flag0 == 1 && flag1 == 1){
             if(targetPosition.distanceTo(landmarks.get(0))<targetPosition.distanceTo(landmarks.get(1))){
@@ -287,7 +286,6 @@ public class Drone {
         }else if(flag1 == 1){
             landmark = landmarks.get(1);
         }
-//        System.out.println(landmark);
         return landmark;
     }
 
@@ -359,12 +357,9 @@ public class Drone {
         for(Line2D line2D:noFlyZone2D){
             isCrossed = line2D.intersectsLine(possiblePath);
             if(isCrossed){
-//                System.out.println(line2D.getP1());
-//                System.out.println(line2D.getP2());
                 break;
             }
         }
-        System.out.println(isCrossed);
         return isCrossed;
     }
 
@@ -378,18 +373,18 @@ public class Drone {
     //TODO find the order pick up locations(1 or 2)
     public void findOrderShopLocations(){
         for (Order order : orders) {
-            order.orderShopLocations = new ArrayList<>();
-            for (int j = 0; j < order.item.size(); j++) { //有可能是需要去两个商店取餐
-                String name = order.item.get(j);
+            order.setOrderShopLocations(new ArrayList<>());
+            for (int j = 0; j < order.getItem().size(); j++) { //有可能是需要去两个商店取餐
+                String name = order.getItem().get(j);
                 ArrayList<MenuParser.Menu> menusList = menuParser.parseMenus();
                 try {
                     for (MenuParser.Menu mi : menusList) {
                         for (MenuParser.Menu.Item k : mi.menu) {
                             if (k.item.equals(name)) {
-                                if (order.orderShopLocations.contains(mi.location)) {
+                                if (order.getOrderShopLocations().contains(mi.location)) {
                                     continue;
                                 } else {
-                                    order.orderShopLocations.add(mi.location);
+                                    order.getOrderShopLocations().add(mi.location);
                                 }
                             }
                         }
@@ -406,24 +401,24 @@ public class Drone {
     //获取每个订单的pick up 经纬度和delivery to 经纬度，并顺序排列（先pick up 再delivery to）
     public void getRouteLongLat(){
         for (Order order : orders) {
-            order.routeLongLat = new ArrayList<>();
+            order.setRouteLongLat(new ArrayList<>());
             //System.out.println(order.orderShopLocations.size());
-            for (int j = 0; j < order.orderShopLocations.size(); j++) {
-                String threeWord = order.orderShopLocations.get(j);
+            for (int j = 0; j < order.getOrderShopLocations().size(); j++) {
+                String threeWord = order.getOrderShopLocations().get(j);
                 WordParser wordParser = new WordParser(menuParser.webPort);
                 WordParser.Word word = wordParser.parseWord(threeWord);
                 double lng = word.coordinates.lng;
                 double lat = word.coordinates.lat;
                 LongLat longLat = new LongLat(lng, lat);
-                order.routeLongLat.add(longLat);
+                order.getRouteLongLat().add(longLat);
             }
-            String deliverTo = order.deliverTo;
+            String deliverTo = order.getDeliverTo();
             WordParser wordParser = new WordParser(menuParser.webPort);
             WordParser.Word word = wordParser.parseWord(deliverTo);
             double lng = word.coordinates.lng;
             double lat = word.coordinates.lat;
             LongLat longLat = new LongLat(lng, lat);
-            order.routeLongLat.add(longLat);
+            order.getRouteLongLat().add(longLat);
             //System.out.println(order.routeLongLat);
         }
     }
