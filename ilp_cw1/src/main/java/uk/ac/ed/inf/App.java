@@ -37,6 +37,7 @@ public class App
         drone.findPath();
         database.writeDeliveriesTable(drone.orders);
         database.writeFlightPathTable(drone.flightPaths);
+        System.out.println(drone.cost);
         droneMap.printRoute(drone.pl,day,month,year);
     }
 }
