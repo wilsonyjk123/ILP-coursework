@@ -43,4 +43,23 @@ public class MenuParser {
         menuList = new Gson().fromJson(this.jsonText, listType);
         return menuList;
     }
+    public Integer getDeliveryCost(ArrayList<String> strings){
+        int totalCost = 0;
+        ArrayList<MenuParser.Menu> menusList = parseMenus();
+        try{
+            for (MenuParser.Menu mi: menusList){
+                for(MenuParser.Menu.Item i: mi.menu){
+                    for(String s:strings){
+                        if(i.item.equals(s)){
+                            totalCost += i.pence;
+                        }
+                    }
+                }
+            }
+        }catch (IllegalArgumentException | NullPointerException e){
+            e.printStackTrace();
+            System.exit(1); // Unsuccessful termination
+        }
+        return totalCost + 50; // 50 pence for extra delivery fee
+    }
 }

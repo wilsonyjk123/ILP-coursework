@@ -1,4 +1,6 @@
 package uk.ac.ed.inf;
+import java.io.IOException;
+import java.net.Inet4Address;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,20 +12,31 @@ import java.util.Comparator;
  */
 public class App 
 {
-    public static void main( String[] args ) throws SQLException {
-//        String day = args[0];
-//        String month = args[1];
-//        String year = args[2];
-//        String webPort = args[3];
-//        String databasePort = args[4];
-        Database database = new Database("9898","1527","4","9", "2023");
-        MenuParser menuParser = new MenuParser("9898");
-        DroneMap droneMap = new DroneMap("9898");
+    public static void main( String[] args ) throws SQLException, IOException {
+        long startTime = System.nanoTime();
+
+//        if (args.length != 5) {
+//            throw new IllegalArgumentException("Please input the correct number of arguments");
+//        }
+
+        var day = "12";
+        var month = "9";
+        var year = "2023";
+        var webPort = "9898";
+        var databasePort = "1527";
+        int monthCheck = Integer.parseInt(month);
+        if(monthCheck<10){
+            month = "0"+month;
+        }
+
+        Database database = new Database(webPort,databasePort,day,month, year);
+        MenuParser menuParser = new MenuParser(webPort);
+        DroneMap droneMap = new DroneMap(webPort);
         Drone drone = new Drone(droneMap,menuParser, database,droneMap);
         drone.preparation();
         drone.findPath();
-        //database.writeDeliveriesTable(drone.orders);
-        System.out.println(drone.printRoute());
-        System.out.println(drone.cost);
+        database.writeDeliveriesTable(drone.orders);
+        database.writeFlightPathTable(drone.flightPaths);
+        droneMap.printRoute(drone.pl,day,month,year);
     }
 }

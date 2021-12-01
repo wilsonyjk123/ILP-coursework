@@ -39,69 +39,11 @@ public class Database {
             String cus = rs.getString("customer");
             String deliverT = rs.getString("deliverTo");
             ArrayList<String> items = readOrderDetailsFromDatabase(orderNo);
-            int price = getDeliveryCost(items);
+            int price = menuParser.getDeliveryCost(items);
             Order order = new Order(orderNo,delivery,cus,deliverT,items,price);
             orders.add(order);
         }
         return orders;
-    }
-
-    public void writeDeliveriesTable(ArrayList<Order> orders) throws SQLException{
-        //TODO We use the DatabaseMetaData to see if it has a students table.
-        Connection conn = DriverManager.getConnection(getJDBCString());
-        Statement statement = conn.createStatement();
-        DatabaseMetaData databaseMetadata = conn.getMetaData();
-        // Note: must capitalise STUDENTS in the call to getTables
-        ResultSet resultSet =
-                databaseMetadata.getTables(null, null, "DELIVERIES", null);
-        // If the resultSet is not empty then the table exists, so we can drop it
-        if (resultSet.next()) {
-            statement.execute("drop table deliveries");
-        }
-        statement.execute("create table deliveries("+
-                "orderNo char(8),"+
-                "deliveredTo varchar(19)," +
-                "costInPence int)");
-        PreparedStatement psDeliveries = conn.prepareStatement(
-                "insert into deliveries values (?, ?, ?)");
-        for (Order order : orders) {
-            if(order.getIsDelivered()){
-                psDeliveries.setString(1, order.getOrderNo());
-                psDeliveries.setString(2, order.getDeliverTo());
-                psDeliveries.setInt(3, order.getPrice());
-                psDeliveries.execute();
-            }
-
-        }
-
-        resultSet =
-                databaseMetadata.getTables(null, null, "FLIGHTPATH", null);
-        // If the resultSet is not empty then the table exists, so we can drop it
-        if (resultSet.next()) {
-            statement.execute("drop table flightpath");
-        }
-        statement.execute("create table flightpath(orderNo char(8)," +
-                "fromLongitude double," +
-                "fromLatitude double," +
-                "angle integer," +
-                "toLongitude double," +
-                "toLatitude double)");
-        PreparedStatement psFlightpath = conn.prepareStatement(
-                "insert into flightpath values (?, ?, ?, ?, ?, ?)");
-        for (Order order : orders) {
-            if(order.getIsDelivered()){
-                psDeliveries.setString(1, order.getOrderNo());
-                psDeliveries.setDouble(2, );
-                psDeliveries.setDouble(3, );
-                psDeliveries.setInt(4,);
-                psDeliveries.setDouble(5, );
-                psDeliveries.setDouble(6, );
-                psDeliveries.execute();
-            }
-
-        }
-
-
     }
 
     public ArrayList<String> readOrderDetailsFromDatabase(String orderNo) throws SQLException {
@@ -119,25 +61,62 @@ public class Database {
         return str;
     }
 
-    public Integer getDeliveryCost(ArrayList<String> strings){
-        int totalCost = 0;
-        ArrayList<MenuParser.Menu> menusList = menuParser.parseMenus();
-        try{
-            for (MenuParser.Menu mi: menusList){
-                for(MenuParser.Menu.Item i: mi.menu){
-                    for(String s:strings){
-                        if(i.item.equals(s)){
-                            totalCost += i.pence;
-                        }
 
-                    }
-                }
-            }
-        }catch (IllegalArgumentException | NullPointerException e){
-            e.printStackTrace();
-            System.exit(1); // Unsuccessful termination
+    public void writeDeliveriesTable(ArrayList<Order> orders) throws SQLException {
+        //TODO We use the DatabaseMetaData to see if it has a students table.
+        Connection conn = DriverManager.getConnection(getJDBCString());
+        Statement statement = conn.createStatement();
+        DatabaseMetaData databaseMetadata = conn.getMetaData();
+        // Note: must capitalise STUDENTS in the call to getTables
+        ResultSet resultSet =
+                databaseMetadata.getTables(null, null, "DELIVERIES", null);
+        // If the resultSet is not empty then the table exists, so we can drop it
+        if (resultSet.next()) {
+            statement.execute("drop table deliveries");
         }
-        return totalCost + 50; // 50 pence for extra delivery fee
+        statement.execute("create table deliveries(" +
+                "orderNo char(8)," +
+                "deliveredTo varchar(19)," +
+                "costInPence int)");
+        PreparedStatement psDeliveries = conn.prepareStatement(
+                "insert into deliveries values (?, ?, ?)");
+        for (Order order : orders) {
+            if (order.getIsDelivered()) {
+                psDeliveries.setString(1, order.getOrderNo());
+                psDeliveries.setString(2, order.getDeliverTo());
+                psDeliveries.setInt(3, order.getPrice());
+                psDeliveries.execute();
+            }
+
+        }
     }
 
+    public void writeFlightPathTable(ArrayList<FlightPath> flightPaths) throws SQLException{
+        Connection conn = DriverManager.getConnection(getJDBCString());
+        Statement statement = conn.createStatement();
+        DatabaseMetaData databaseMetadata = conn.getMetaData();
+        ResultSet resultSet =
+                databaseMetadata.getTables(null, null, "FLIGHTPATH", null);
+        // If the resultSet is not empty then the table exists, so we can drop it
+        if (resultSet.next()) {
+            statement.execute("drop table flightpath");
+        }
+        statement.execute("create table flightpath(orderNo char(8)," +
+                "fromLongitude double," +
+                "fromLatitude double," +
+                "angle integer," +
+                "toLongitude double," +
+                "toLatitude double)");
+        PreparedStatement psFlightpath = conn.prepareStatement(
+                "insert into flightpath values (?, ?, ?, ?, ?, ?)");
+        for (FlightPath flightPath: flightPaths) {
+            psFlightpath.setString(1, flightPath.getOrderNo());
+            psFlightpath.setDouble(2, flightPath.getFromLongitude());
+            psFlightpath.setDouble(3, flightPath.getFromLatitude());
+            psFlightpath.setInt(4,flightPath.getAngle());
+            psFlightpath.setDouble(5, flightPath.getToLongitude());
+            psFlightpath.setDouble(6, flightPath.getToLatitude());
+            psFlightpath.execute();
+        }
+    }
 }

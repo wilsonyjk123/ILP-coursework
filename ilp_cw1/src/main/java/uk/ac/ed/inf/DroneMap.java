@@ -4,6 +4,8 @@ import com.mapbox.geojson.*;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -134,5 +136,20 @@ public class DroneMap {
             }
         }
         return line2DArrayListNoFlyZone;
+    }
+
+    //打印路线
+    public void printRoute(ArrayList<Point> pl, String day,String month,String year) throws IOException {
+        LineString lineString = LineString.fromLngLats(pl);
+        Feature feature = Feature.fromGeometry(lineString);
+        FeatureCollection featureCollection = FeatureCollection.fromFeature(feature);
+        String flightPath = featureCollection.toJson();
+        try {
+            FileWriter fileWriter = new FileWriter("drone-" + day + "-" + month + "-" + year + ".geojson");
+            fileWriter.write(flightPath);
+            fileWriter.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }

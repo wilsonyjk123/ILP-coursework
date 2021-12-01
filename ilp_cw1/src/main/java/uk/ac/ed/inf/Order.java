@@ -13,8 +13,6 @@ public class Order implements Comparable<Order> {
     private ArrayList<LongLat> routeLongLat; //订单
     private boolean isDelivered = false;
 
-
-
     Order(String orderNo, String deliveryDate, String customer, String deliverTo, ArrayList<String> item, Integer price){
         this.orderNo = orderNo;
         this.deliveryDate = deliveryDate;

@@ -16,6 +16,7 @@ public class Drone {
     LongLat targetPosition;
     ArrayList<Order> orders;
     ArrayList<Point> pl = new ArrayList<>();
+    ArrayList<FlightPath> flightPaths = new ArrayList<>();
     int cost = 0;
     int[] shift = new int[]{10,-10,20,-20,30,-30,40,-40,50,-50,60,-60,70,-70,80,-80,90,-90,100,-100,110,-110,120,-120,130,-130,140,-140,150,-150,160,-160,170,-170,180,-180,190,-190,200,-200,210,-210,220,-220,230,-230,240,-240,250,-250,260,-260,270,-270,280,-280,290,-290,300,-300,310,-310,320,-320,330,-330,340,-340,350,-350};
 
@@ -64,15 +65,23 @@ public class Drone {
                             break;
                         }
                         if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).longitude , currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).latitude , currentPosition.longitude , currentPosition.latitude)){
+                            FlightPath flightPath = new FlightPath(order.getOrderNo(),currentPosition.longitude,currentPosition.latitude,getAngle(currentPosition,closestLandmark),currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).longitude,currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).latitude);
+                            flightPaths.add(flightPath);
+                            System.out.println(flightPath.getOrderNo());
+                            System.out.println(flightPath.getFromLongitude());
+                            System.out.println(flightPath.getFromLatitude());
+                            System.out.println(flightPath.getAngle());
+                            System.out.println(flightPath.getToLongitude());
+                            System.out.println(flightPath.getToLatitude());
                             currentPosition = currentPosition.nextPosition(getAngle(currentPosition,closestLandmark));
                             pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
                             cost+=1;
+
                         }else{
                             //只要一直穿过禁飞区，就修正角度
                             int counter = 0;
                             int shiftAngle = getAngle(currentPosition,closestLandmark);
                             while(isNoFlyZone(currentPosition.nextPosition(shiftAngle).longitude , currentPosition.nextPosition(shiftAngle).latitude , currentPosition.longitude , currentPosition.latitude)){
-
                                 shiftAngle = getAngle(currentPosition,closestLandmark) + shift[counter];
                                 if(shiftAngle<0){
                                     shiftAngle = 360 - Math.abs(shift[counter]);
@@ -82,18 +91,35 @@ public class Drone {
                                 }
                                 counter +=1;
                             }
+                            FlightPath flightPath = new FlightPath(order.getOrderNo(),currentPosition.longitude,currentPosition.latitude,shiftAngle,currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).longitude,currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).latitude);
+                            flightPaths.add(flightPath);
+                            System.out.println(flightPath.getOrderNo());
+                            System.out.println(flightPath.getFromLongitude());
+                            System.out.println(flightPath.getFromLatitude());
+                            System.out.println(flightPath.getAngle());
+                            System.out.println(flightPath.getToLongitude());
+                            System.out.println(flightPath.getToLatitude());
                             currentPosition = currentPosition.nextPosition(shiftAngle);
                             pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
                             cost+=1;
                         }
+
                     }
-                    while(!currentPosition.closeTo(target)){
+                    while(!currentPosition.closeTo(targetPosition)){
                         //如果当前move没有进禁飞区
                         if(cost>=1450){
                             outOfBattery = 1;
                             break;
                         }
                         if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).longitude , currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).latitude , currentPosition.longitude , currentPosition.latitude) ){
+                            FlightPath flightPath = new FlightPath(order.getOrderNo(),currentPosition.longitude,currentPosition.latitude,getAngle(currentPosition,targetPosition),currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).longitude,currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).latitude);
+                            flightPaths.add(flightPath);
+                            System.out.println(flightPath.getOrderNo());
+                            System.out.println(flightPath.getFromLongitude());
+                            System.out.println(flightPath.getFromLatitude());
+                            System.out.println(flightPath.getAngle());
+                            System.out.println(flightPath.getToLongitude());
+                            System.out.println(flightPath.getToLatitude());
                             currentPosition = currentPosition.nextPosition(getAngle(currentPosition,targetPosition));
                             pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
                             cost+=1;
@@ -111,6 +137,14 @@ public class Drone {
                                 }
                                 counter +=1;
                             }
+                            FlightPath flightPath = new FlightPath(order.getOrderNo(),currentPosition.longitude,currentPosition.latitude,shiftAngle,currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).longitude,currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).latitude);
+                            flightPaths.add(flightPath);
+                            System.out.println(flightPath.getOrderNo());
+                            System.out.println(flightPath.getFromLongitude());
+                            System.out.println(flightPath.getFromLatitude());
+                            System.out.println(flightPath.getAngle());
+                            System.out.println(flightPath.getToLongitude());
+                            System.out.println(flightPath.getToLatitude());
                             currentPosition = currentPosition.nextPosition(shiftAngle);
                             pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
                             cost += 1;
@@ -127,6 +161,14 @@ public class Drone {
                         }
                         //如果当前move没有进禁飞区
                         if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).longitude , currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).latitude , currentPosition.longitude , currentPosition.latitude) ){
+                            FlightPath flightPath = new FlightPath(order.getOrderNo(),currentPosition.longitude,currentPosition.latitude,getAngle(currentPosition,targetPosition),currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).longitude,currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).latitude);
+                            flightPaths.add(flightPath);
+                            System.out.println(flightPath.getOrderNo());
+                            System.out.println(flightPath.getFromLongitude());
+                            System.out.println(flightPath.getFromLatitude());
+                            System.out.println(flightPath.getAngle());
+                            System.out.println(flightPath.getToLongitude());
+                            System.out.println(flightPath.getToLatitude());
                             currentPosition = currentPosition.nextPosition(getAngle(currentPosition,targetPosition));
                             pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
                             cost+=1;
@@ -145,6 +187,14 @@ public class Drone {
                                 }
                                 counter +=1;
                             }
+                            FlightPath flightPath = new FlightPath(order.getOrderNo(),currentPosition.longitude,currentPosition.latitude,shiftAngle,currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).longitude,currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).latitude);
+                            flightPaths.add(flightPath);
+                            System.out.println(flightPath.getOrderNo());
+                            System.out.println(flightPath.getFromLongitude());
+                            System.out.println(flightPath.getFromLatitude());
+                            System.out.println(flightPath.getAngle());
+                            System.out.println(flightPath.getToLongitude());
+                            System.out.println(flightPath.getToLatitude());
                             currentPosition = currentPosition.nextPosition(shiftAngle);
                             pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
                             cost += 1;
@@ -173,15 +223,19 @@ public class Drone {
 
         //回到at，如果电量不足50
         if(outOfBattery==1 || fullBattery==1){
-            if(isNoFlyZone(currentPosition.longitude , currentPosition.latitude , droneMap.getATLong() , droneMap.getATLat()) &&
-                    isConfinementArea(currentPosition.longitude , currentPosition.latitude , droneMap.getATLong() , droneMap.getATLat())){
+            if(isNoFlyZone(currentPosition.longitude , currentPosition.latitude , droneMap.getATLong() , droneMap.getATLat()) && isConfinementArea(currentPosition.longitude , currentPosition.latitude , droneMap.getATLong() , droneMap.getATLat())){
                 LongLat closestLandmark  = getClosestLandmark(new LongLat(droneMap.getATLong() , droneMap.getATLat()),currentPosition);
                 while(!currentPosition.closeTo(closestLandmark)){
                     if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).longitude , currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).latitude , currentPosition.longitude , currentPosition.latitude) ){
-                        //System.out.println(111);
-                        //System.out.println(printRoute());
+                        FlightPath flightPath = new FlightPath(null,currentPosition.longitude,currentPosition.latitude,getAngle(currentPosition,closestLandmark),currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).longitude,currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).latitude);
+                        flightPaths.add(flightPath);
+                        System.out.println(flightPath.getOrderNo());
+                        System.out.println(flightPath.getFromLongitude());
+                        System.out.println(flightPath.getFromLatitude());
+                        System.out.println(flightPath.getAngle());
+                        System.out.println(flightPath.getToLongitude());
+                        System.out.println(flightPath.getToLatitude());
                         currentPosition = currentPosition.nextPosition(getAngle(currentPosition,closestLandmark));
-
                     }else{
                         //只要一直穿过禁飞区，就修正角度
                         int counter = 0;
@@ -198,6 +252,14 @@ public class Drone {
                             }
                             counter +=1;
                         }
+                        FlightPath flightPath = new FlightPath(null,currentPosition.longitude,currentPosition.latitude,shiftAngle,currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).longitude,currentPosition.nextPosition(getAngle(currentPosition,closestLandmark)).latitude);
+                        flightPaths.add(flightPath);
+                        System.out.println(flightPath.getOrderNo());
+                        System.out.println(flightPath.getFromLongitude());
+                        System.out.println(flightPath.getFromLatitude());
+                        System.out.println(flightPath.getAngle());
+                        System.out.println(flightPath.getToLongitude());
+                        System.out.println(flightPath.getToLatitude());
                         currentPosition = currentPosition.nextPosition(shiftAngle);
                     }
                     pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
@@ -205,8 +267,15 @@ public class Drone {
                 }
                 while(!currentPosition.closeTo(new LongLat(droneMap.getATLong(), droneMap.getATLat()))){
                     //如果当前move没有进禁飞区
-
                     if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat()))).longitude , currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat()))).latitude , currentPosition.longitude , currentPosition.latitude) ){
+                        FlightPath flightPath = new FlightPath(null,currentPosition.longitude,currentPosition.latitude,getAngle(currentPosition,targetPosition),currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).longitude,currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).latitude);
+                        flightPaths.add(flightPath);
+                        System.out.println(flightPath.getOrderNo());
+                        System.out.println(flightPath.getFromLongitude());
+                        System.out.println(flightPath.getFromLatitude());
+                        System.out.println(flightPath.getAngle());
+                        System.out.println(flightPath.getToLongitude());
+                        System.out.println(flightPath.getToLatitude());
                         currentPosition = currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat())));
                         pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
                         cost+=1;
@@ -224,17 +293,31 @@ public class Drone {
                             }
                             counter +=1;
                         }
+                        FlightPath flightPath = new FlightPath(null,currentPosition.longitude,currentPosition.latitude,shiftAngle,currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).longitude,currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).latitude);
+                        flightPaths.add(flightPath);
+                        System.out.println(flightPath.getOrderNo());
+                        System.out.println(flightPath.getFromLongitude());
+                        System.out.println(flightPath.getFromLatitude());
+                        System.out.println(flightPath.getAngle());
+                        System.out.println(flightPath.getToLongitude());
+                        System.out.println(flightPath.getToLatitude());
                         currentPosition = currentPosition.nextPosition(shiftAngle);
                         pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
                         cost += 1;
                     }
-
                 }
-
             }else{
                 while(!currentPosition.closeTo(new LongLat(droneMap.getATLong(), droneMap.getATLat()))){
                     //如果当前move没有进禁飞区
                     if(!isNoFlyZone(currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat()))).longitude , currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat()))).latitude , currentPosition.longitude , currentPosition.latitude) ){
+                        FlightPath flightPath = new FlightPath(null,currentPosition.longitude,currentPosition.latitude,getAngle(currentPosition,targetPosition),currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).longitude,currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).latitude);
+                        flightPaths.add(flightPath);
+                        System.out.println(flightPath.getOrderNo());
+                        System.out.println(flightPath.getFromLongitude());
+                        System.out.println(flightPath.getFromLatitude());
+                        System.out.println(flightPath.getAngle());
+                        System.out.println(flightPath.getToLongitude());
+                        System.out.println(flightPath.getToLatitude());
                         currentPosition = currentPosition.nextPosition(getAngle(currentPosition,new LongLat(droneMap.getATLong() , droneMap.getATLat())));
                         pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
                         cost+=1;
@@ -253,6 +336,14 @@ public class Drone {
                             }
                             counter +=1;
                         }
+                        FlightPath flightPath = new FlightPath(null,currentPosition.longitude,currentPosition.latitude,shiftAngle,currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).longitude,currentPosition.nextPosition(getAngle(currentPosition,targetPosition)).latitude);
+                        flightPaths.add(flightPath);
+                        System.out.println(flightPath.getOrderNo());
+                        System.out.println(flightPath.getFromLongitude());
+                        System.out.println(flightPath.getFromLatitude());
+                        System.out.println(flightPath.getAngle());
+                        System.out.println(flightPath.getToLongitude());
+                        System.out.println(flightPath.getToLatitude());
                         currentPosition = currentPosition.nextPosition(shiftAngle);
                         pl.add(Point.fromLngLat(currentPosition.longitude,currentPosition.latitude));
                         cost += 1;
@@ -321,14 +412,6 @@ public class Drone {
         }
         return angle;
 
-    }
-
-    //打印路线
-    public String printRoute(){
-        LineString lineString = LineString.fromLngLats(pl);
-        Feature feature = Feature.fromGeometry(lineString);
-        FeatureCollection featureCollection = FeatureCollection.fromFeature(feature);
-        return featureCollection.toJson();
     }
 
 

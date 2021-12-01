@@ -9,12 +9,14 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 
 public class WordParser {
+
     String webPort;
     String jsonText;
+    Word word = null;
+
     WordParser(String webPort){
         this.webPort = webPort;
     }
-    Word word = null;
 
     public static class Word {
         String country;
