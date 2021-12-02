@@ -108,6 +108,7 @@ public class Database {
                 "toLatitude double)");
         PreparedStatement psFlightpath = conn.prepareStatement(
                 "insert into flightpath values (?, ?, ?, ?, ?, ?)");
+        System.out.println(flightPaths.size());
         for (FlightPath flightPath: flightPaths) {
             psFlightpath.setString(1, flightPath.getOrderNo());
             psFlightpath.setDouble(2, flightPath.getFromLongitude());

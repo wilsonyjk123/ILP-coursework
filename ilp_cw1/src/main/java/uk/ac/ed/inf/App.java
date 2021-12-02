@@ -26,7 +26,6 @@ public class App
         var webPort = args[3];
         var databasePort = args[4];
 
-        // prepare for
         Database database = new Database(webPort, databasePort, day, month, year);
         MenuParser menuParser = new MenuParser(webPort);
         DroneMap droneMap = new DroneMap(webPort);

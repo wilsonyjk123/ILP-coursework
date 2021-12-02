@@ -143,7 +143,7 @@ public class DroneMap {
     }
 
     //打印路线
-    public void printRoute(ArrayList<Point> pl, String day,String month,String year) throws IOException {
+    public void printRoute(ArrayList<Point> pl, String day,String month,String year){
         LineString lineString = LineString.fromLngLats(pl);
         Feature feature = Feature.fromGeometry(lineString);
         FeatureCollection featureCollection = FeatureCollection.fromFeature(feature);
