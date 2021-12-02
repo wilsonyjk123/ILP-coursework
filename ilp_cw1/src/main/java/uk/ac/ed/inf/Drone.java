@@ -35,11 +35,9 @@ public class Drone {
     }
 
     public void findPath(){
-        //设置起点
-        cp = setStartPosition();
-        //添加起点的点
         pl = new ArrayList<>();
         flightPaths = new ArrayList<>();
+        cp = setStartPosition();
         pl.add(Point.fromLngLat(droneMap.getATLong(),droneMap.getATLat()));
         int outOfBattery = 0;
         int timeToBreak = 0;
@@ -54,7 +52,6 @@ public class Drone {
                     }else{
                         tp = target;
                     }
-                    //每个target之间判断一次，查看是否需要landmark，假如过禁飞区则去landmark然后再去target
                     if(droneUtils.isNoFlyZone(cp.longitude , cp.latitude , tp.longitude , tp.latitude)&& droneUtils.isConfinementArea(cp.longitude , cp.latitude , tp.longitude , tp.latitude)){
                         LongLat closestLandmark  = droneUtils.getClosestLandmark(tp,cp);
                         //不接近终点就不停

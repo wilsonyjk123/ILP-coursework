@@ -3,20 +3,14 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class Database {
-    String dataBasePort;
-    String day;
-    String month;
-    String year;
-    String dateString;
+    private final String dataBasePort;
+    private final String dateString;
     MenuParser menuParser;
 
     // Constructor
     Database(String webPort,String dataBasePort, String day, String month, String year){
         this.dataBasePort = dataBasePort;
-        this.day = day;
-        this.month = month;
-        this.year = year;
-        this.dateString = this.year + "-" + this.month + "-" + this.day;
+        this.dateString = year + "-" + month + "-" + day;
         this.menuParser = new MenuParser(webPort);
         menuParser.parseMenus();
     }
