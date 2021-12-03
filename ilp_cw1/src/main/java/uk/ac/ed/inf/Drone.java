@@ -6,7 +6,6 @@ import java.util.*;
 
 public class Drone {
     // Fields
-    DroneMap map;
     MenuParser menuParser;
     Database database;
     DroneMap droneMap;
@@ -21,19 +20,30 @@ public class Drone {
     int[] shift = new int[]{10,-10,20,-20,30,-30,40,-40,50,-50,60,-60,70,-70,80,-80,90,-90,100,-100,110,-110,120,-120,130,-130,140,-140,150,-150,160,-160,170,-170,180,-180,190,-190,200,-200,210,-210,220,-220,230,-230,240,-240,250,-250,260,-260,270,-270,280,-280,290,-290,300,-300,310,-310,320,-320,330,-330,340,-340,350,-350};
 
     // Class Constructor
-    Drone(DroneMap map, MenuParser menuParser, Database database, DroneMap droneMap) throws SQLException {
-        this.map = map;
+    Drone( MenuParser menuParser, Database database,DroneMap droneMap) throws SQLException {
+        this.droneMap = droneMap;
         this.menuParser = menuParser; // get the location of stores
         this.database = database; // connect to database and get order details
-        this.droneMap = droneMap;
         this.orders = database.readOrdersFromDatabase();
         this.droneUtils = new DroneUtils(droneMap);
     }
 
+    // Methods
+    /**
+     * set the Appleton Tower's LongLat position
+     *
+     * @return Appleton Tower's LongLat position
+     * */
     public LongLat setAPT(){
         return new LongLat(droneMap.getATLong(),droneMap.getATLat());
     }
 
+    /**
+     * Find the flightpath and record the information of each move
+     * When the drone's battery is under 50, the drone will directly go back to Appleton Tower from the current position
+     *
+     * @return the List of Point that records the flight path
+     * */
     public void findPath(){
         pl = new ArrayList<>();
         flightPaths = new ArrayList<>();
@@ -151,12 +161,19 @@ public class Drone {
         backAPT();
     }
 
-    public void preparation() throws SQLException {
+    /**
+     * Sort the orders , find the shop locations and set target for each order
+     *
+     */
+    public void preparation(){
         droneUtils.sortOrders(orders); //订单排序
         droneUtils.findOrderShopLocations(orders,menuParser); //找到pick up三字地址
-        droneUtils.getRouteLongLat(orders,menuParser); //set每个订单的target
+        droneUtils.getRouteLongLat(orders,menuParser);
     }
 
+    /**
+     * When the battery of the drone is under 50 or all the orders has been finished, the drone will go back to Appleton Tower
+     * */
     public void backAPT(){
         if(droneUtils.isNoFlyZone(cp.longitude , cp.latitude , tp.longitude , tp.latitude)&& droneUtils.isConfinementArea(cp.longitude , cp.latitude , tp.longitude , tp.latitude)){
             LongLat closestLandmark  = droneUtils.getClosestLandmark(tp,cp);

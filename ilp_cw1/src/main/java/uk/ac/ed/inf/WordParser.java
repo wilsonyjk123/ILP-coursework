@@ -9,15 +9,17 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 
 public class WordParser {
-
+    // Fields
     String webPort;
     String jsonText;
     Word word = null;
 
+    // Constructor
     WordParser(String webPort){
         this.webPort = webPort;
     }
 
+    // An inner class to parse the JSON file
     public static class Word {
         String country;
         Square square;
@@ -35,15 +37,20 @@ public class WordParser {
         }
         String nearestPlace;
         Coordinates coordinates;
-
         public static class Coordinates {
             double lng;
             double lat;
         }
-
         String language;
         String map;
     }
+
+    /**
+     * parse the words on the website
+     *
+     * @param threeWord - three-word string
+     * @return a word-type that we defined as inner class Word
+     * */
     public Word parseWord(String threeWord){
         WebConn webConn = new WebConn(webPort);
         try{

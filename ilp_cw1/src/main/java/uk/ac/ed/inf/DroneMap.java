@@ -33,39 +33,26 @@ public class DroneMap {
         this.webPort = webPort;
     }
 
-    // Getters
-    public double getATLong(){ // private fields
-        return -3.186874; }
-
-    public double getATLat(){
-        return 55.944494; }
-
-    public double getFHLong(){ return FHLong; }
-
-    public double getFHLat(){ return FHLat; }
-
-    public double getKFCLong(){ return KFCLong; }
-
-    public double getKFCLat(){ return KFCLat; }
-
-    public double getMeadowsLong(){ return MeadowsLong; }
-
-    public double getMeadowsLat(){ return MeadowsLat; }
-
-    public double getBuccleuchLong(){ return BuccleuchLong; }
-
-    public double getBuccleuchLat(){ return BuccleuchLat; }
-
+    /**
+     * Get the URL string for accessing the no-fly zone on website
+     *
+     * @return URL string for accessing the no-fly zone on website
+     * */
     public String getURLStringForNoFlyZones(){ return "http://localhost:" + webPort + "/buildings/no-fly-zones.geojson"; }
 
+    /**
+     * Get the URL string for accessing the landmark on website
+     *
+     * @return URL string for accessing the landmark on website
+     * */
     public String getURLStringForLandmarks(){
         return "http://localhost:" + webPort + "/buildings/landmarks.geojson";
     }
 
     /**
+     * Get the confinement area from the defined final local variables and set them into lines in type-Line2D
      *
-     *
-     *
+     * @return a list of type-Line2D object that contains the confinement area
      * */
     public ArrayList<Line2D> getConfinementArea(){
         Point pointFH = Point.fromLngLat(getFHLong(),getFHLat());
@@ -95,6 +82,11 @@ public class DroneMap {
         return line2DArrayListConfinementArea;
     }
 
+    /**
+     * Get the landmarks from the website and set them into LongLat objects
+     *
+     * @return a list of LongLat object that contains the landmarks
+     * */
     public ArrayList<LongLat> getLandMarks(){
         WebConn webConn = new WebConn(webPort);
         HttpResponse<String> response = webConn.createResponse(webConn.createRequest(getURLStringForLandmarks()));
@@ -112,6 +104,11 @@ public class DroneMap {
         return landmarks;
     }
 
+    /**
+     * Get the no-fly zone from the website and set them into lines in type-Line2D
+     *
+     * @return a list of type-Line2D object that contains the no-fly zone
+     * */
     public ArrayList<Line2D> getNoFlyZone(){
         WebConn webConn = new WebConn(webPort);
         HttpResponse<String> response = webConn.createResponse(webConn.createRequest(getURLStringForNoFlyZones()));
@@ -142,7 +139,14 @@ public class DroneMap {
         return line2DArrayListNoFlyZone;
     }
 
-    //打印路线
+    /**
+     * Write a text file in GeoJSON format
+     *
+     * @param pl - A list of point that represents all the points on the map that drone arrives
+     * @param day - the day of this order
+     * @param month - the month of this order
+     * @param year - the year of this order
+     * */
     public void printRoute(ArrayList<Point> pl, String day,String month,String year){
         LineString lineString = LineString.fromLngLats(pl);
         Feature feature = Feature.fromGeometry(lineString);
@@ -156,4 +160,25 @@ public class DroneMap {
             e.printStackTrace();
         }
     }
+
+    /*Getters*/
+    public double getATLong(){ return -3.186874; }
+
+    public double getATLat(){ return 55.944494; }
+
+    public double getFHLong(){ return FHLong; }
+
+    public double getFHLat(){ return FHLat; }
+
+    public double getKFCLong(){ return KFCLong; }
+
+    public double getKFCLat(){ return KFCLat; }
+
+    public double getMeadowsLong(){ return MeadowsLong; }
+
+    public double getMeadowsLat(){ return MeadowsLat; }
+
+    public double getBuccleuchLong(){ return BuccleuchLong; }
+
+    public double getBuccleuchLat(){ return BuccleuchLat; }
 }

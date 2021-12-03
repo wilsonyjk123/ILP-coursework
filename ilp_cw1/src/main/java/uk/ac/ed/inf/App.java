@@ -10,7 +10,7 @@ import java.util.Comparator;
  * Hello world!
  *
  */
-public class App 
+public class App
 {
     public static void main( String[] args ) throws SQLException, IOException {
         //
@@ -26,18 +26,29 @@ public class App
         var webPort = args[3];
         var databasePort = args[4];
 
+        // Initiate the database, menuParser and drone map
         Database database = new Database(webPort, databasePort, day, month, year);
         MenuParser menuParser = new MenuParser(webPort);
         DroneMap droneMap = new DroneMap(webPort);
-        Drone drone = new Drone(droneMap, menuParser, database, droneMap);
 
+        // Initiate the drone
+        Drone drone = new Drone(menuParser, database, droneMap);
 
+        // Prepare to initial drone's order information
         drone.preparation();
+
+        // find the flight path and record it
         drone.findPath();
-        database.writeDeliveriesTable(drone.orders);
-        database.writeFlightPathTable(drone.flightPaths);
-        System.out.println(drone.cost);
+
+        // Write the file that records the flight path
         droneMap.printRoute(drone.pl, day, month, year);
+        System.out.println(drone.cost);
+
+        // Write the order information into database
+        database.writeDeliveriesTable(drone.orders);
+
+        // Write the drone flight path information into database
+        database.writeFlightPathTable(drone.flightPaths);
 
         // print the total time used
         long endTime = System.nanoTime();

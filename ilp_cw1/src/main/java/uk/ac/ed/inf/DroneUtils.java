@@ -13,23 +13,31 @@ public class DroneUtils {
         this.droneMap = droneMap;
     }
 
-    public int getAngle(LongLat start, LongLat target){
+    /**
+     * Get the angle of moving from one point to another, if the angle is not a multiple of 10, then the result will be rounded.
+     * The value range of the angle is a multiple of 10 between 0 and 350.
+     *
+     * @param current - A LongLat object that represents the current position
+     * @param target  - A LongLat object that represents the target position
+     * @return an angle of moving from one point to another point
+     * */
+    public int getAngle(LongLat current, LongLat target){
         double tan = 0;
-        if(target.longitude>start.longitude && target.latitude>start.latitude){
-            tan = Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI; //第一象限
-        }else if(target.longitude<start.longitude && target.latitude>start.latitude){
-            tan = (double)180-Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI; //第二象限
-        }else if(target.longitude<start.longitude && target.latitude<start.latitude){
-            tan = (double)180+Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI; //第三象限
-        }else if(target.longitude>start.longitude && target.latitude<start.latitude){
-            tan = (double)360-Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI; //第四象限
-        }else if(target.longitude>start.longitude && target.latitude==start.latitude){
-            tan = Math.atan(Math.abs((target.latitude-start.latitude)/(target.longitude-start.longitude))) * 180 / Math.PI; //第一象限和第四象限分界线
-        }else if(target.longitude==start.longitude && target.latitude>start.latitude){
+        if(target.longitude>current.longitude && target.latitude>current.latitude){
+            tan = Math.atan(Math.abs((target.latitude-current.latitude)/(target.longitude-current.longitude))) * 180 / Math.PI; //第一象限
+        }else if(target.longitude<current.longitude && target.latitude>current.latitude){
+            tan = (double)180-Math.atan(Math.abs((target.latitude-current.latitude)/(target.longitude-current.longitude))) * 180 / Math.PI; //第二象限
+        }else if(target.longitude<current.longitude && target.latitude<current.latitude){
+            tan = (double)180+Math.atan(Math.abs((target.latitude-current.latitude)/(target.longitude-current.longitude))) * 180 / Math.PI; //第三象限
+        }else if(target.longitude>current.longitude && target.latitude<current.latitude){
+            tan = (double)360-Math.atan(Math.abs((target.latitude-current.latitude)/(target.longitude-current.longitude))) * 180 / Math.PI; //第四象限
+        }else if(target.longitude>current.longitude && target.latitude==current.latitude){
+            tan = Math.atan(Math.abs((target.latitude-current.latitude)/(target.longitude-current.longitude))) * 180 / Math.PI; //第一象限和第四象限分界线
+        }else if(target.longitude==current.longitude && target.latitude>current.latitude){
             tan = 90;
-        }else if(target.longitude<start.longitude && target.latitude==start.latitude){
+        }else if(target.longitude<current.longitude && target.latitude==current.latitude){
             tan = 180;
-        }else if(target.longitude==start.longitude && target.latitude<start.latitude){
+        }else if(target.longitude==current.longitude && target.latitude<current.latitude){
             tan = 270;
         }
         int angle = (int)tan;
@@ -44,6 +52,15 @@ public class DroneUtils {
         return angle;
     }
 
+    /**
+     * Find the valid landmarks that will not cross the no-fly zone from the current position
+     * Choose the closest landmark from the current position
+     *
+     * @param targetPosition - target position to go
+     * @param currentPosition - current position right now
+     * @return the valid landmark. If two landmarks are both valid, then return the one with the smaller sum of (distance between current position and landmark) and (distance between target position and landmark)
+     * @throws NullPointerException If there is no valid landmark
+     * */
     public LongLat getClosestLandmark(LongLat targetPosition,LongLat currentPosition){
         ArrayList<LongLat> landmarks = droneMap.getLandMarks();
         int flag0 = 0;
@@ -71,7 +88,15 @@ public class DroneUtils {
         return landmark;
     }
 
-    //confinementArea 判断
+    /**
+     * Given the longitude and latitude of two points, check if the line between these two points will cross the confinement area
+     *
+     * @param lng1 - longitude of the first point
+     * @param lat1 - latitude of the first point
+     * @param lng2 - longitude of the second point
+     * @param lat2 - latitude of the second point
+     * @return a boolean value true if the line between these two points will cross the confinement area and vice versa
+     * */
     public boolean isConfinementArea(double lng1, double lat1, double lng2, double lat2){
         boolean isCrossed = false;
         ArrayList<Line2D> confinementArea2D = droneMap.getConfinementArea();
@@ -86,6 +111,15 @@ public class DroneUtils {
         return isCrossed;
     }
 
+    /**
+     * Given the longitude and latitude of two points, check if the line between these two points will cross the no-Fly Zone
+     *
+     * @param lng1 - longitude of the first point
+     * @param lat1 - latitude of the first point
+     * @param lng2 - longitude of the second point
+     * @param lat2 - latitude of the second point
+     * @return a boolean value true if the line between these two points will cross the confinement area and vice versa
+     * */
     public boolean isNoFlyZone(double lng1, double lat1, double lng2, double lat2){
         boolean isCrossed = false;
         ArrayList<Line2D> noFlyZone2D = droneMap.getNoFlyZone();
@@ -100,6 +134,15 @@ public class DroneUtils {
         return isCrossed;
     }
 
+    /**
+     * When the calculated angle in each move is invalid, use this method to correct angle by shift 10 degree left and right (increment by 10)
+     *
+     * @param currentPosition - A LongLat object that represents the current position
+     * @param targetPosition  - A LongLat object that represents the target position
+     * @param angle  - A list of type int that contains all the possible correction angle values
+     * @return an int-type angle that is valid so that the next move will not cross the no-fly zone and confinement area
+     * @throws IndexOutOfBoundsException if all the correction angle is not valid
+     * */
     public int getShiftAngle(LongLat currentPosition, LongLat targetPosition, int[] angle){
         int counter = 0;
         int shiftAngle = getAngle(currentPosition,targetPosition);
@@ -116,13 +159,24 @@ public class DroneUtils {
         return shiftAngle;
     }
 
-    //TODO sort orders based on the price
-    public void sortOrders(ArrayList<Order> orders) throws SQLException {
+    /**
+     * Sort orders based on the price of each order as descending trend
+     *
+     * @param orders - All orders
+     * */
+    public void sortOrders(ArrayList<Order> orders) {
         Comparator<Order> c = Collections.reverseOrder();
         orders.sort(c);
     }
 
-    //TODO find the order pick up locations(1 or 2)
+    /**
+     * Find the three-word location for each order in the menu on the website
+     *
+     * @param orders - All orders
+     * @param menuParser - A MenuParser object that helps parse the json data
+     * @throws IllegalArgumentException if arguments are not correct
+     * @throws NullPointerException if reference of the shop location is null
+     * */
     public void findOrderShopLocations(ArrayList<Order> orders, MenuParser menuParser){
         for (Order order : orders) {
             order.setOrderShopLocations(new ArrayList<>());
@@ -133,8 +187,7 @@ public class DroneUtils {
                     for (MenuParser.Menu mi : menusList) {
                         for (MenuParser.Menu.Item k : mi.menu) {
                             if (k.item.equals(name)) {
-                                if (order.getOrderShopLocations().contains(mi.location)) {
-                                } else {
+                                if (!order.getOrderShopLocations().contains(mi.location)) {
                                     order.getOrderShopLocations().add(mi.location);
                                 }
                             }
@@ -148,7 +201,13 @@ public class DroneUtils {
         }
     }
 
-    //获取每个订单的pick up 经纬度和delivery to 经纬度，并顺序排列（先pick up 再delivery to）
+
+    /**
+     * Add each order's pick-up location(s) and deliver-to location into a list of LongLat attribute in class Order
+     *
+     * @param orders - All orders
+     * @param menuParser - A MenuParser object that helps parse the json data
+     * */
     public void getRouteLongLat(ArrayList<Order> orders, MenuParser menuParser){
         for (Order order : orders) {
             order.setRouteLongLat(new ArrayList<>());
