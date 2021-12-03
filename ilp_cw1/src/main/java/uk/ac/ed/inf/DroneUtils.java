@@ -48,15 +48,17 @@ public class DroneUtils {
         ArrayList<LongLat> landmarks = droneMap.getLandMarks();
         int flag0 = 0;
         int flag1 = 0;
-        if(!isNoFlyZone(currentPosition.longitude,currentPosition.latitude,landmarks.get(0).longitude,landmarks.get(0).latitude)){
+        if(!isNoFlyZone(currentPosition.longitude,currentPosition.latitude,landmarks.get(0).longitude,landmarks.get(0).latitude)
+        && !isNoFlyZone(targetPosition.longitude,targetPosition.latitude,landmarks.get(0).longitude,landmarks.get(0).latitude)){
             flag0 = 1;
         }
-        if(!isNoFlyZone(currentPosition.longitude,currentPosition.latitude,landmarks.get(1).longitude,landmarks.get(1).latitude)){
+        if(!isNoFlyZone(currentPosition.longitude,currentPosition.latitude,landmarks.get(1).longitude,landmarks.get(1).latitude)&&
+                !isNoFlyZone(targetPosition.longitude,targetPosition.latitude,landmarks.get(1).longitude,landmarks.get(1).latitude)){
             flag1 = 1;
         }
         LongLat landmark = null;
         if(flag0 == 1 && flag1 == 1){
-            if(targetPosition.distanceTo(landmarks.get(0))<targetPosition.distanceTo(landmarks.get(1))){
+            if(targetPosition.distanceTo(landmarks.get(0))+currentPosition.distanceTo(landmarks.get(0))<targetPosition.distanceTo(landmarks.get(1))+currentPosition.distanceTo(landmarks.get(1))){
                 landmark =  landmarks.get(0);
             }else{
                 landmark =  landmarks.get(1);
@@ -132,7 +134,6 @@ public class DroneUtils {
                         for (MenuParser.Menu.Item k : mi.menu) {
                             if (k.item.equals(name)) {
                                 if (order.getOrderShopLocations().contains(mi.location)) {
-                                    continue;
                                 } else {
                                     order.getOrderShopLocations().add(mi.location);
                                 }
