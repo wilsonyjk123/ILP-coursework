@@ -50,10 +50,8 @@ public class Drone {
         cp = setAPT();
         pl.add(Point.fromLngLat(droneMap.getATLong(),droneMap.getATLat()));
         int orderCounter = 0;
-        //对于每一个订单开始
         outerloop:
         for(Order order:orders){
-            //对于订单中每一个target
             if(order.getRouteLongLat().size()>2){
                 if(cp.distanceTo(order.getRouteLongLat().get(0))>cp.distanceTo(order.getRouteLongLat().get(1))){
                     ArrayList<LongLat> longLats = new ArrayList<>();
@@ -67,9 +65,7 @@ public class Drone {
                 tp = target;
                 if(droneUtils.isNoFlyZone(cp.longitude , cp.latitude , tp.longitude , tp.latitude)&& droneUtils.isConfinementArea(cp.longitude , cp.latitude , tp.longitude , tp.latitude)){
                     LongLat closestLandmark  = droneUtils.getClosestLandmark(tp,cp);
-                    //不接近终点就不停
                     while (!cp.closeTo(closestLandmark)){
-                        //如果当前move没有进禁飞区
                         if(cost>= batteryLimit){
                             break outerloop;
                         }
@@ -84,7 +80,6 @@ public class Drone {
                             pl.add(Point.fromLngLat(cp.longitude,cp.latitude));
                             cost+=1;
                         }else{
-                            //只要一直穿过禁飞区，就修正角度
                             FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.longitude,cp.latitude,droneUtils.getShiftAngle(cp,closestLandmark,shift),cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).longitude,cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).latitude);
                             flightPaths.add(flightPath);
                             cp = cp.nextPosition(droneUtils.getShiftAngle(cp,closestLandmark,shift));
@@ -93,7 +88,6 @@ public class Drone {
                         }
                     }
                     while(!cp.closeTo(tp)){
-                        //如果当前move没有进禁飞区
                         if(cost>= batteryLimit){
                             break outerloop;
                         }
@@ -123,7 +117,6 @@ public class Drone {
                         if(cost>= batteryLimit){
                             break outerloop;
                         }
-                        //如果当前move没有进禁飞区
                         if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)
                                 &&!droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)){
                             FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.longitude,cp.latitude,droneUtils.getAngle(cp, tp),cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude,cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude);
@@ -133,7 +126,6 @@ public class Drone {
                             cost+=1;
                         }
                         else{
-                            //只要一直穿过禁飞区，就修正角度
                             FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.longitude,cp.latitude,droneUtils.getShiftAngle(cp, tp,shift),cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude,cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude);
                             flightPaths.add(flightPath);
                             cp = cp.nextPosition(droneUtils.getShiftAngle(cp, tp,shift));
@@ -166,8 +158,8 @@ public class Drone {
      *
      */
     public void preparation(){
-        droneUtils.sortOrders(orders); //订单排序
-        droneUtils.findOrderShopLocations(orders,menuParser); //找到pick up三字地址
+        droneUtils.sortOrders(orders);
+        droneUtils.findOrderShopLocations(orders,menuParser);
         droneUtils.getRouteLongLat(orders,menuParser);
     }
 
@@ -191,7 +183,6 @@ public class Drone {
                     pl.add(Point.fromLngLat(cp.longitude,cp.latitude));
                     cost+=1;
                 }else{
-                    //只要一直穿过禁飞区，就修正角度
                     FlightPath flightPath = new FlightPath(null,cp.longitude,cp.latitude,droneUtils.getShiftAngle(cp,closestLandmark,shift),cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).longitude,cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).latitude);
                     flightPaths.add(flightPath);
                     cp = cp.nextPosition(droneUtils.getShiftAngle(cp,closestLandmark,shift));
@@ -200,7 +191,6 @@ public class Drone {
                 }
             }
             while(!cp.closeTo(tp)){
-                //如果当前move没有进禁飞区
                 if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)
                         && !droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)){
                     FlightPath flightPath = new FlightPath(null,cp.longitude,cp.latitude,droneUtils.getAngle(cp, tp),cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude,cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude);
@@ -224,7 +214,6 @@ public class Drone {
             }
         }else{
             while(!cp.closeTo(tp)){
-                //如果当前move没有进禁飞区
                 if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)
                         && !droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)){
                     FlightPath flightPath = new FlightPath(null,cp.longitude,cp.latitude,droneUtils.getAngle(cp, tp),cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude,cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude);
@@ -234,7 +223,6 @@ public class Drone {
                     cost+=1;
                 }
                 else{
-                    //只要一直穿过禁飞区，就修正角度
                     FlightPath flightPath = new FlightPath(null,cp.longitude,cp.latitude,droneUtils.getShiftAngle(cp, tp,shift),cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude,cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude);
                     flightPaths.add(flightPath);
                     cp = cp.nextPosition(droneUtils.getShiftAngle(cp, tp,shift));

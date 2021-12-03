@@ -201,7 +201,6 @@ public class DroneUtils {
         }
     }
 
-
     /**
      * Add each order's pick-up location(s) and deliver-to location into a list of LongLat attribute in class Order
      *
