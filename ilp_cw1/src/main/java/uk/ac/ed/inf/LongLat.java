@@ -17,16 +17,6 @@ public class LongLat {
         this.latitude = latitude;
     }
 
-    //Methods
-    /**
-     * Determine whether the current point is in confinement area or not
-     *
-     * @return a true if the point is in confinement area and vice versa
-     */
-    public boolean isConfined(){
-        return (-3.192473 < longitude) && (longitude < -3.184319) && (55.942617 < latitude) && (latitude < 55.946233);
-    }
-
     /**
      * Calculate the distance between the current point and the given point
      *

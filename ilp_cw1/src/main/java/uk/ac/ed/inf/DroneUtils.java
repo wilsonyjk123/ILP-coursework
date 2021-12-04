@@ -164,7 +164,7 @@ public class DroneUtils {
      *
      * @param orders - All orders
      * */
-    public void sortOrders(ArrayList<Order> orders) {
+    public static void sortOrders(ArrayList<Order> orders) {
         Comparator<Order> c = Collections.reverseOrder();
         orders.sort(c);
     }
@@ -177,7 +177,7 @@ public class DroneUtils {
      * @throws IllegalArgumentException if arguments are not correct
      * @throws NullPointerException if reference of the shop location is null
      * */
-    public void findOrderShopLocations(ArrayList<Order> orders, MenuParser menuParser){
+    public static void findOrderShopLocations(ArrayList<Order> orders, MenuParser menuParser){
         for (Order order : orders) {
             order.setOrderShopLocations(new ArrayList<>());
             for (int j = 0; j < order.getItem().size(); j++) { //有可能是需要去两个商店取餐
@@ -207,7 +207,7 @@ public class DroneUtils {
      * @param orders - All orders
      * @param menuParser - A MenuParser object that helps parse the json data
      * */
-    public void getRouteLongLat(ArrayList<Order> orders, MenuParser menuParser){
+    public static void getRouteLongLat(ArrayList<Order> orders, MenuParser menuParser){
         for (Order order : orders) {
             order.setRouteLongLat(new ArrayList<>());
             for (int j = 0; j < order.getOrderShopLocations().size(); j++) {
@@ -228,4 +228,6 @@ public class DroneUtils {
             order.getRouteLongLat().add(longLat);
         }
     }
+
+
 }

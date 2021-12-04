@@ -160,6 +160,15 @@ public class DroneMap {
             e.printStackTrace();
         }
     }
+    // Methods
+    /**
+     * set the Appleton Tower's LongLat position
+     *
+     * @return Appleton Tower's LongLat position
+     * */
+    public LongLat setAPT(){
+        return new LongLat(getATLong(),getATLat());
+    }
 
     /*Getters*/
     public double getATLong(){ return -3.186874; }

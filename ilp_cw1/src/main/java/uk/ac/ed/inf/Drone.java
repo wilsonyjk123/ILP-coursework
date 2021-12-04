@@ -6,7 +6,6 @@ import java.util.*;
 
 public class Drone {
     // Fields
-    MenuParser menuParser;
     Database database;
     DroneMap droneMap;
     DroneUtils droneUtils;
@@ -20,22 +19,11 @@ public class Drone {
     int[] shift = new int[]{10,-10,20,-20,30,-30,40,-40,50,-50,60,-60,70,-70,80,-80,90,-90,100,-100,110,-110,120,-120,130,-130,140,-140,150,-150,160,-160,170,-170,180,-180,190,-190,200,-200,210,-210,220,-220,230,-230,240,-240,250,-250,260,-260,270,-270,280,-280,290,-290,300,-300,310,-310,320,-320,330,-330,340,-340,350,-350};
 
     // Class Constructor
-    Drone( MenuParser menuParser, Database database,DroneMap droneMap) throws SQLException {
+    Drone(  Database database,DroneMap droneMap) throws SQLException {
         this.droneMap = droneMap;
-        this.menuParser = menuParser; // get the location of stores
         this.database = database; // connect to database and get order details
         this.orders = database.readOrdersFromDatabase();
         this.droneUtils = new DroneUtils(droneMap);
-    }
-
-    // Methods
-    /**
-     * set the Appleton Tower's LongLat position
-     *
-     * @return Appleton Tower's LongLat position
-     * */
-    public LongLat setAPT(){
-        return new LongLat(droneMap.getATLong(),droneMap.getATLat());
     }
 
     /**
@@ -47,7 +35,7 @@ public class Drone {
     public void findPath(){
         pl = new ArrayList<>();
         flightPaths = new ArrayList<>();
-        cp = setAPT();
+        cp = droneMap.setAPT();
         pl.add(Point.fromLngLat(droneMap.getATLong(),droneMap.getATLat()));
         int orderCounter = 0;
         outerloop:
@@ -149,18 +137,8 @@ public class Drone {
         }
         System.out.println("Total number of orders: "+orders.size());
         System.out.println("Actual number of Delivered orders: " +orderCounter);
-        tp = setAPT();
+        tp = droneMap.setAPT();
         backAPT();
-    }
-
-    /**
-     * Sort the orders , find the shop locations and set target for each order
-     *
-     */
-    public void preparation(){
-        droneUtils.sortOrders(orders);
-        droneUtils.findOrderShopLocations(orders,menuParser);
-        droneUtils.getRouteLongLat(orders,menuParser);
     }
 
     /**
@@ -238,4 +216,6 @@ public class Drone {
             }
         }
     }
+
+
 }

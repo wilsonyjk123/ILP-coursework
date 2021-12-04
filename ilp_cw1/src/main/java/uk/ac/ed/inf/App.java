@@ -32,10 +32,12 @@ public class App
         DroneMap droneMap = new DroneMap(webPort);
 
         // Initiate the drone
-        Drone drone = new Drone(menuParser, database, droneMap);
+        Drone drone = new Drone( database, droneMap);
 
         // Prepare to initial drone's order information
-        drone.preparation();
+        DroneUtils.sortOrders(drone.orders);
+        DroneUtils.findOrderShopLocations(drone.orders,menuParser);
+        DroneUtils.getRouteLongLat(drone.orders,menuParser);
 
         // find the flight path and record it
         drone.findPath();
