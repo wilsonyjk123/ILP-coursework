@@ -15,6 +15,7 @@ public class Order implements Comparable<Order> {
     private boolean isDelivered = false;
     public Integer routeCounter = 0;
 
+    // Constructor
     Order(String orderNo, String deliveryDate, String customer, String deliverTo, ArrayList<String> item, Integer price){
         this.orderNo = orderNo;
         this.deliveryDate = deliveryDate;
@@ -24,6 +25,18 @@ public class Order implements Comparable<Order> {
         this.price = price;
     }
 
+    /**
+     * Sort the order
+     *
+     * @param o - the input order that needs to be sorted
+     * @return the sorted order by using the price in descending order
+     * */
+    @Override
+    public int compareTo(Order o) {
+        return price.compareTo(o.price);
+    }
+
+    /*Getters and Setters*/
     public String getOrderNo() { return orderNo; }
 
     public String getDeliveryDate(){ return deliveryDate; }
@@ -47,9 +60,4 @@ public class Order implements Comparable<Order> {
     public ArrayList<LongLat> getRouteLongLat(){ return routeLongLat; }
 
     public void setRouteLongLat(ArrayList<LongLat> longLat){ routeLongLat = longLat; }
-
-    @Override
-    public int compareTo(Order o) {
-        return price.compareTo(o.price);
-    }
 }
