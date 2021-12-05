@@ -1,14 +1,17 @@
 package uk.ac.ed.inf;
 
 import java.awt.geom.Line2D;
+import java.lang.reflect.Constructor;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
 public class DroneUtils {
-    DroneMap droneMap;
+    // Field
+    public DroneMap droneMap;
 
+    // Constructor
     DroneUtils(DroneMap droneMap){
         this.droneMap = droneMap;
     }
@@ -23,21 +26,21 @@ public class DroneUtils {
      * */
     public int getAngle(LongLat current, LongLat target){
         double tan = 0;
-        if(target.longitude>current.longitude && target.latitude>current.latitude){
-            tan = Math.atan(Math.abs((target.latitude-current.latitude)/(target.longitude-current.longitude))) * 180 / Math.PI; //第一象限
-        }else if(target.longitude<current.longitude && target.latitude>current.latitude){
-            tan = (double)180-Math.atan(Math.abs((target.latitude-current.latitude)/(target.longitude-current.longitude))) * 180 / Math.PI; //第二象限
-        }else if(target.longitude<current.longitude && target.latitude<current.latitude){
-            tan = (double)180+Math.atan(Math.abs((target.latitude-current.latitude)/(target.longitude-current.longitude))) * 180 / Math.PI; //第三象限
-        }else if(target.longitude>current.longitude && target.latitude<current.latitude){
-            tan = (double)360-Math.atan(Math.abs((target.latitude-current.latitude)/(target.longitude-current.longitude))) * 180 / Math.PI; //第四象限
-        }else if(target.longitude>current.longitude && target.latitude==current.latitude){
-            tan = Math.atan(Math.abs((target.latitude-current.latitude)/(target.longitude-current.longitude))) * 180 / Math.PI; //第一象限和第四象限分界线
-        }else if(target.longitude==current.longitude && target.latitude>current.latitude){
+        if(target.getLongitude()>current.getLongitude() && target.getLatitude()>current.getLatitude()){
+            tan = Math.atan(Math.abs((target.getLatitude()-current.getLatitude())/(target.getLongitude()-current.getLongitude()))) * 180 / Math.PI; //第一象限
+        }else if(target.getLongitude()<current.getLongitude() && target.getLatitude()>current.getLatitude()){
+            tan = (double)180-Math.atan(Math.abs((target.getLatitude()-current.getLatitude())/(target.getLongitude()-current.getLongitude()))) * 180 / Math.PI; //第二象限
+        }else if(target.getLongitude()<current.getLongitude() && target.getLatitude()<current.getLatitude()){
+            tan = (double)180+Math.atan(Math.abs((target.getLatitude()-current.getLatitude())/(target.getLongitude()-current.getLongitude()))) * 180 / Math.PI; //第三象限
+        }else if(target.getLongitude()>current.getLongitude() && target.getLatitude()<current.getLatitude()){
+            tan = (double)360-Math.atan(Math.abs((target.getLatitude()-current.getLatitude())/(target.getLongitude()-current.getLongitude()))) * 180 / Math.PI; //第四象限
+        }else if(target.getLongitude()>current.getLongitude() && target.getLatitude()==current.getLatitude()){
+            tan = Math.atan(Math.abs((target.getLatitude()-current.getLatitude())/(target.getLongitude()-current.getLongitude()))) * 180 / Math.PI; //第一象限和第四象限分界线
+        }else if(target.getLongitude()==current.getLongitude() && target.getLatitude()>current.getLatitude()){
             tan = 90;
-        }else if(target.longitude<current.longitude && target.latitude==current.latitude){
+        }else if(target.getLongitude()<current.getLongitude() && target.getLatitude()==current.getLatitude()){
             tan = 180;
-        }else if(target.longitude==current.longitude && target.latitude<current.latitude){
+        }else if(target.getLongitude()==current.getLongitude() && target.getLatitude()<current.getLatitude()){
             tan = 270;
         }
         int angle = (int)tan;
@@ -65,12 +68,12 @@ public class DroneUtils {
         ArrayList<LongLat> landmarks = droneMap.getLandMarks();
         int flag0 = 0;
         int flag1 = 0;
-        if(!isNoFlyZone(currentPosition.longitude,currentPosition.latitude,landmarks.get(0).longitude,landmarks.get(0).latitude)
-        && !isNoFlyZone(targetPosition.longitude,targetPosition.latitude,landmarks.get(0).longitude,landmarks.get(0).latitude)){
+        if(!isNoFlyZone(currentPosition.getLongitude(),currentPosition.getLatitude(),landmarks.get(0).getLongitude(),landmarks.get(0).getLatitude())
+        && !isNoFlyZone(targetPosition.getLongitude(),targetPosition.getLatitude(),landmarks.get(0).getLongitude(),landmarks.get(0).getLatitude())){
             flag0 = 1;
         }
-        if(!isNoFlyZone(currentPosition.longitude,currentPosition.latitude,landmarks.get(1).longitude,landmarks.get(1).latitude)&&
-                !isNoFlyZone(targetPosition.longitude,targetPosition.latitude,landmarks.get(1).longitude,landmarks.get(1).latitude)){
+        if(!isNoFlyZone(currentPosition.getLongitude(),currentPosition.getLatitude(),landmarks.get(1).getLongitude(),landmarks.get(1).getLatitude())&&
+                !isNoFlyZone(targetPosition.getLongitude(),targetPosition.getLatitude(),landmarks.get(1).getLongitude(),landmarks.get(1).getLatitude())){
             flag1 = 1;
         }
         LongLat landmark = null;
@@ -146,7 +149,7 @@ public class DroneUtils {
     public int getShiftAngle(LongLat currentPosition, LongLat targetPosition, int[] angle){
         int counter = 0;
         int shiftAngle = getAngle(currentPosition,targetPosition);
-        while(isNoFlyZone(currentPosition.nextPosition(shiftAngle).longitude , currentPosition.nextPosition(shiftAngle).latitude , currentPosition.longitude , currentPosition.latitude)){
+        while(isNoFlyZone(currentPosition.nextPosition(shiftAngle).getLongitude() , currentPosition.nextPosition(shiftAngle).getLatitude() , currentPosition.getLongitude() , currentPosition.getLatitude())){
             shiftAngle = getAngle(currentPosition,targetPosition) + angle[counter];
             if(shiftAngle<0){
                 shiftAngle = 360 - Math.abs(angle[counter]);

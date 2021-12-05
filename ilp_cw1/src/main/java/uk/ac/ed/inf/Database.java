@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 public class Database {
     // Fields
-    private final String dataBasePort;
-    private final String dateString;
-    MenuParser menuParser;
+    public final String dataBasePort;
+    public final String dateString;
+    public final MenuParser menuParser;
 
     // Constructor
     Database(String webPort,String dataBasePort, String day, String month, String year){

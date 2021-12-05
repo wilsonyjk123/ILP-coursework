@@ -3,8 +3,8 @@ import java.lang.Math;
 
 public class LongLat {
     // Public fields
-    public double longitude;
-    public double latitude;
+    private final double longitude;
+    private final double latitude;
 
     /**
      * LongLat constructor
@@ -15,6 +15,14 @@ public class LongLat {
     LongLat(double longitude, double latitude){
         this.longitude = longitude;
         this.latitude = latitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
     }
 
     /**
