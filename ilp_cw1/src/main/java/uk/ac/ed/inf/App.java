@@ -13,13 +13,15 @@ import java.util.Comparator;
 public class App
 {
     public static void main( String[] args ) throws SQLException, IOException {
-        //
+        // Record the time when the application starts
         long startTime = System.nanoTime();
 
+        // throw Exception if the number of input arguments is not 5
         if (args.length != 5) {
             throw new IllegalArgumentException("Please input the correct number of arguments");
         }
 
+        // Receive the input parameters
         var day = args[0];
         var month = args[1];
         var year = args[2];
@@ -52,9 +54,13 @@ public class App
         // Write the drone flight path information into database
         database.writeFlightPathTable(drone.getFlightPaths());
 
-        // print the total time used
+        // Record the time when the application ends
         long endTime = System.nanoTime();
+
+        // Calculate the time in difference
         long totalTime = endTime - startTime;
+
+        // Print the total time in used
         System.out.println("Total Time used in seconds: " + totalTime/1000000000.0 + " seconds");
     }
 

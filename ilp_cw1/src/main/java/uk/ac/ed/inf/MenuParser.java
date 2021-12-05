@@ -19,7 +19,6 @@ public class MenuParser {
         this.webPort = webPort;
     }
 
-
     // An inner class to parse the JSON file
     public static class Menu {
         String name;

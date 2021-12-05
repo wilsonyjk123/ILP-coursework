@@ -2,7 +2,7 @@ package uk.ac.ed.inf;
 import java.lang.Math;
 
 public class LongLat {
-    // Public fields
+    // Private fields
     private final double longitude;
     private final double latitude;
 
@@ -15,14 +15,6 @@ public class LongLat {
     LongLat(double longitude, double latitude){
         this.longitude = longitude;
         this.latitude = latitude;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
     }
 
     /**
@@ -72,4 +64,12 @@ public class LongLat {
         }
     }
 
+    /*Getters*/
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
 }
