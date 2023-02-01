@@ -6,6 +6,7 @@ import java.util.*;
 
 public class Drone {
     // Fields
+<<<<<<< HEAD
     Database database;
     DroneMap droneMap;
     DroneUtils droneUtils;
@@ -14,12 +15,26 @@ public class Drone {
     public ArrayList<Order> orders;
     public ArrayList<Point> pl;
     public ArrayList<FlightPath> flightPaths;
+=======
+    public Database database;
+    public DroneMap droneMap;
+    public DroneUtils droneUtils;
+    public LongLat cp;
+    public LongLat tp;
+    private final ArrayList<Order> orders;
+    private ArrayList<Point> pl;
+    private ArrayList<FlightPath> flightPaths;
+>>>>>>> d02e249ce3ce5df6e4cbdcb5ca3bf93719d64f6b
     int cost = 0;
     int batteryLimit = 1450;
     int[] shift = new int[]{10,-10,20,-20,30,-30,40,-40,50,-50,60,-60,70,-70,80,-80,90,-90,100,-100,110,-110,120,-120,130,-130,140,-140,150,-150,160,-160,170,-170,180,-180,190,-190,200,-200,210,-210,220,-220,230,-230,240,-240,250,-250,260,-260,270,-270,280,-280,290,-290,300,-300,310,-310,320,-320,330,-330,340,-340,350,-350};
 
     // Class Constructor
+<<<<<<< HEAD
     public Drone(Database database, DroneMap droneMap) throws SQLException {
+=======
+    Drone(Database database,DroneMap droneMap) throws SQLException {
+>>>>>>> d02e249ce3ce5df6e4cbdcb5ca3bf93719d64f6b
         this.droneMap = droneMap;
         this.database = database; // connect to database and get order details
         this.orders = database.readOrdersFromDatabase();
@@ -30,7 +45,6 @@ public class Drone {
      * Find the flightpath and record the information of each move
      * When the drone's battery is under 50, the drone will directly go back to Appleton Tower from the current position
      *
-     * @return the List of Point that records the flight path
      * */
     public void findPath(int batteryLimitation){
         pl = new ArrayList<>();
@@ -51,27 +65,27 @@ public class Drone {
             }
             for(LongLat target: order.getRouteLongLat()){
                 tp = target;
-                if(droneUtils.isNoFlyZone(cp.longitude , cp.latitude , tp.longitude , tp.latitude)&& droneUtils.isConfinementArea(cp.longitude , cp.latitude , tp.longitude , tp.latitude)){
+                if(droneUtils.isNoFlyZone(cp.getLongitude() , cp.getLatitude() , tp.getLongitude() , tp.getLatitude())&& droneUtils.isConfinementArea(cp.getLongitude() , cp.getLatitude() , tp.getLongitude() , tp.getLatitude())){
                     LongLat closestLandmark  = droneUtils.getClosestLandmark(tp,cp);
                     while (!cp.closeTo(closestLandmark)){
                         if(cost>= batteryLimitation){
                             break outerloop;
                         }
-                        if(!droneUtils.isNoFlyZone(cp.longitude , cp.latitude , tp.longitude , tp.latitude)){
+                        if(!droneUtils.isNoFlyZone(cp.getLongitude() , cp.getLatitude() , tp.getLongitude() , tp.getLatitude())){
                             break;
                         }
-                        if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).longitude , cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).latitude , cp.longitude , cp.latitude)
-                                && !droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).longitude , cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).latitude , cp.longitude , cp.latitude)){
-                            FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.longitude,cp.latitude,droneUtils.getAngle(cp,closestLandmark),cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).longitude,cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).latitude);
+                        if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLongitude() , cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLatitude() , cp.getLongitude() , cp.getLatitude())
+                                && !droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLongitude() , cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLatitude() , cp.getLongitude() , cp.getLatitude())){
+                            FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.getLongitude(),cp.getLatitude(),droneUtils.getAngle(cp,closestLandmark),cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLongitude(),cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLatitude());
                             flightPaths.add(flightPath);
                             cp = cp.nextPosition(droneUtils.getAngle(cp,closestLandmark));
-                            pl.add(Point.fromLngLat(cp.longitude,cp.latitude));
+                            pl.add(Point.fromLngLat(cp.getLongitude(),cp.getLatitude()));
                             cost+=1;
                         }else{
-                            FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.longitude,cp.latitude,droneUtils.getShiftAngle(cp,closestLandmark,shift),cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).longitude,cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).latitude);
+                            FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.getLongitude(),cp.getLatitude(),droneUtils.getShiftAngle(cp,closestLandmark,shift),cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLongitude(),cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLatitude());
                             flightPaths.add(flightPath);
                             cp = cp.nextPosition(droneUtils.getShiftAngle(cp,closestLandmark,shift));
-                            pl.add(Point.fromLngLat(cp.longitude,cp.latitude));
+                            pl.add(Point.fromLngLat(cp.getLongitude(),cp.getLatitude()));
                             cost+=1;
                         }
                     }
@@ -79,25 +93,25 @@ public class Drone {
                         if(cost>= batteryLimitation){
                             break outerloop;
                         }
-                        if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)
-                                && !droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)){
-                            FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.longitude,cp.latitude,droneUtils.getAngle(cp, tp),cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude,cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude);
+                        if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude() , cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude() , cp.getLongitude() , cp.getLatitude())
+                                && !droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude() , cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude() , cp.getLongitude() , cp.getLatitude())){
+                            FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.getLongitude(),cp.getLatitude(),droneUtils.getAngle(cp, tp),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude(),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude());
                             flightPaths.add(flightPath);
                             cp = cp.nextPosition(droneUtils.getAngle(cp, tp));
-                            pl.add(Point.fromLngLat(cp.longitude,cp.latitude));
+                            pl.add(Point.fromLngLat(cp.getLongitude(),cp.getLatitude()));
                             cost+=1;
                         }else{
-                            FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.longitude,cp.latitude,droneUtils.getShiftAngle(cp, tp,shift),cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude,cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude);
+                            FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.getLongitude(),cp.getLatitude(),droneUtils.getShiftAngle(cp, tp,shift),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude(),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude());
                             flightPaths.add(flightPath);
                             cp = cp.nextPosition(droneUtils.getShiftAngle(cp, tp,shift));
-                            pl.add(Point.fromLngLat(cp.longitude,cp.latitude));
+                            pl.add(Point.fromLngLat(cp.getLongitude(),cp.getLatitude()));
                             cost += 1;
                         }
                     }
                     if(cp.closeTo(tp)) {
                         order.routeCounter += 1;
                         cost += 1;
-                        FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.longitude,cp.latitude,-999,cp.longitude,cp.latitude);
+                        FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.getLongitude(),cp.getLatitude(),-999,cp.getLongitude(),cp.getLatitude());
                         flightPaths.add(flightPath);
                     }
                 }else{
@@ -105,26 +119,26 @@ public class Drone {
                         if(cost>= batteryLimitation){
                             break outerloop;
                         }
-                        if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)
-                                &&!droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)){
-                            FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.longitude,cp.latitude,droneUtils.getAngle(cp, tp),cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude,cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude);
+                        if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude() , cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude() , cp.getLongitude() , cp.getLatitude())
+                                &&!droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude() , cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude() , cp.getLongitude() , cp.getLatitude())){
+                            FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.getLongitude(),cp.getLatitude(),droneUtils.getAngle(cp, tp),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude(),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude());
                             flightPaths.add(flightPath);
                             cp = cp.nextPosition(droneUtils.getAngle(cp, tp));
-                            pl.add(Point.fromLngLat(cp.longitude,cp.latitude));
+                            pl.add(Point.fromLngLat(cp.getLongitude(),cp.getLatitude()));
                             cost+=1;
                         }
                         else{
-                            FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.longitude,cp.latitude,droneUtils.getShiftAngle(cp, tp,shift),cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude,cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude);
+                            FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.getLongitude(),cp.getLatitude(),droneUtils.getShiftAngle(cp, tp,shift),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude(),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude());
                             flightPaths.add(flightPath);
                             cp = cp.nextPosition(droneUtils.getShiftAngle(cp, tp,shift));
-                            pl.add(Point.fromLngLat(cp.longitude,cp.latitude));
+                            pl.add(Point.fromLngLat(cp.getLongitude(),cp.getLatitude()));
                             cost += 1;
                         }
                     }
                     if(cp.closeTo(tp)) {
                         order.routeCounter += 1;
                         cost += 1;
-                        FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.longitude,cp.latitude,-999,cp.longitude,cp.latitude);
+                        FlightPath flightPath = new FlightPath(order.getOrderNo(),cp.getLongitude(),cp.getLatitude(),-999,cp.getLongitude(),cp.getLatitude());
                         flightPaths.add(flightPath);
                     }
                 }
@@ -145,75 +159,91 @@ public class Drone {
      * When the battery of the drone is under 50 or all the orders has been finished, the drone will go back to Appleton Tower
      * */
     public void backAPT(){
-        if(droneUtils.isNoFlyZone(cp.longitude , cp.latitude , tp.longitude , tp.latitude)&& droneUtils.isConfinementArea(cp.longitude , cp.latitude , tp.longitude , tp.latitude)){
+        if(droneUtils.isNoFlyZone(cp.getLongitude() , cp.getLatitude() , tp.getLongitude() , tp.getLatitude())&& droneUtils.isConfinementArea(cp.getLongitude() , cp.getLatitude() , tp.getLongitude() , tp.getLatitude())){
             LongLat closestLandmark  = droneUtils.getClosestLandmark(tp,cp);
             //不接近终点就不停
             while (!cp.closeTo(closestLandmark)){
                 //如果当前move没有进禁飞区
-                if(!droneUtils.isNoFlyZone(cp.longitude , cp.latitude , tp.longitude , tp.latitude)){
+                if(!droneUtils.isNoFlyZone(cp.getLongitude() , cp.getLatitude() , tp.getLongitude() , tp.getLatitude())){
                     break;
                 }
-                if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).longitude , cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).latitude , cp.longitude , cp.latitude)
-                        && !droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).longitude , cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).latitude , cp.longitude , cp.latitude)){
-                    FlightPath flightPath = new FlightPath(null,cp.longitude,cp.latitude,droneUtils.getAngle(cp,closestLandmark),cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).longitude,cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).latitude);
+                if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLongitude() , cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLatitude() , cp.getLongitude() , cp.getLatitude())
+                        && !droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLongitude() , cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLatitude() , cp.getLongitude() , cp.getLatitude())){
+                    FlightPath flightPath = new FlightPath(null,cp.getLongitude(),cp.getLatitude(),droneUtils.getAngle(cp,closestLandmark),cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLongitude(),cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLatitude());
                     flightPaths.add(flightPath);
                     cp = cp.nextPosition(droneUtils.getAngle(cp,closestLandmark));
-                    pl.add(Point.fromLngLat(cp.longitude,cp.latitude));
+                    pl.add(Point.fromLngLat(cp.getLongitude(),cp.getLatitude()));
                     cost+=1;
                 }else{
-                    FlightPath flightPath = new FlightPath(null,cp.longitude,cp.latitude,droneUtils.getShiftAngle(cp,closestLandmark,shift),cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).longitude,cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).latitude);
+                    FlightPath flightPath = new FlightPath(null,cp.getLongitude(),cp.getLatitude(),droneUtils.getShiftAngle(cp,closestLandmark,shift),cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLongitude(),cp.nextPosition(droneUtils.getAngle(cp,closestLandmark)).getLatitude());
                     flightPaths.add(flightPath);
                     cp = cp.nextPosition(droneUtils.getShiftAngle(cp,closestLandmark,shift));
-                    pl.add(Point.fromLngLat(cp.longitude,cp.latitude));
+                    pl.add(Point.fromLngLat(cp.getLongitude(),cp.getLatitude()));
                     cost+=1;
                 }
             }
             while(!cp.closeTo(tp)){
-                if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)
-                        && !droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)){
-                    FlightPath flightPath = new FlightPath(null,cp.longitude,cp.latitude,droneUtils.getAngle(cp, tp),cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude,cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude);
+                if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude() , cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude() , cp.getLongitude() , cp.getLatitude())
+                        && !droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude() , cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude() , cp.getLongitude() , cp.getLatitude())){
+                    FlightPath flightPath = new FlightPath(null,cp.getLongitude(),cp.getLatitude(),droneUtils.getAngle(cp, tp),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude(),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude());
                     flightPaths.add(flightPath);
                     cp = cp.nextPosition(droneUtils.getAngle(cp, tp));
-                    pl.add(Point.fromLngLat(cp.longitude,cp.latitude));
+                    pl.add(Point.fromLngLat(cp.getLongitude(),cp.getLatitude()));
                     cost+=1;
                 }else{
-                    FlightPath flightPath = new FlightPath(null,cp.longitude,cp.latitude,droneUtils.getShiftAngle(cp, tp,shift),cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude,cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude);
+                    FlightPath flightPath = new FlightPath(null,cp.getLongitude(),cp.getLatitude(),droneUtils.getShiftAngle(cp, tp,shift),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude(),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude());
                     flightPaths.add(flightPath);
                     cp = cp.nextPosition(droneUtils.getShiftAngle(cp, tp,shift));
-                    pl.add(Point.fromLngLat(cp.longitude,cp.latitude));
+                    pl.add(Point.fromLngLat(cp.getLongitude(),cp.getLatitude()));
                     cost += 1;
                 }
             }
             if(cp.closeTo(tp)) {
                 cost += 1;
-                FlightPath flightPath = new FlightPath(null,cp.longitude,cp.latitude,-999,cp.longitude,cp.latitude);
+                FlightPath flightPath = new FlightPath(null,cp.getLongitude(),cp.getLatitude(),-999,cp.getLongitude(),cp.getLatitude());
                 flightPaths.add(flightPath);
                 System.out.println("The Drone has returned to APT");
             }
         }else{
             while(!cp.closeTo(tp)){
-                if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)
-                        && !droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)){
-                    FlightPath flightPath = new FlightPath(null,cp.longitude,cp.latitude,droneUtils.getAngle(cp, tp),cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude,cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude);
+                if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude() , cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude() , cp.getLongitude() , cp.getLatitude())
+                        && !droneUtils.isConfinementArea(cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude() , cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude() , cp.getLongitude() , cp.getLatitude())){
+                    FlightPath flightPath = new FlightPath(null,cp.getLongitude(),cp.getLatitude(),droneUtils.getAngle(cp, tp),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude(),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude());
                     flightPaths.add(flightPath);
                     cp = cp.nextPosition(droneUtils.getAngle(cp, tp));
-                    pl.add(Point.fromLngLat(cp.longitude,cp.latitude));
+                    pl.add(Point.fromLngLat(cp.getLongitude(),cp.getLatitude()));
                     cost+=1;
                 }
                 else{
-                    FlightPath flightPath = new FlightPath(null,cp.longitude,cp.latitude,droneUtils.getShiftAngle(cp, tp,shift),cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude,cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude);
+                    FlightPath flightPath = new FlightPath(null,cp.getLongitude(),cp.getLatitude(),droneUtils.getShiftAngle(cp, tp,shift),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLongitude(),cp.nextPosition(droneUtils.getAngle(cp, tp)).getLatitude());
                     flightPaths.add(flightPath);
                     cp = cp.nextPosition(droneUtils.getShiftAngle(cp, tp,shift));
-                    pl.add(Point.fromLngLat(cp.longitude,cp.latitude));
+                    pl.add(Point.fromLngLat(cp.getLongitude(),cp.getLatitude()));
                     cost += 1;
                 }
             }
             if(cp.closeTo(tp)) {
                 cost += 1;
-                FlightPath flightPath = new FlightPath(null,cp.longitude,cp.latitude,-999,cp.longitude,cp.latitude);
+                FlightPath flightPath = new FlightPath(null,cp.getLongitude(),cp.getLatitude(),-999,cp.getLongitude(),cp.getLatitude());
                 flightPaths.add(flightPath);
                 System.out.println("The Drone has returned to APT");
             }
         }
     }
+<<<<<<< HEAD
+=======
+
+    /*Getters*/
+    public ArrayList<FlightPath> getFlightPaths() {
+        return flightPaths;
+    }
+
+    public ArrayList<Point> getPl() {
+        return pl;
+    }
+
+    public ArrayList<Order> getOrders() {
+        return orders;
+    }
+>>>>>>> d02e249ce3ce5df6e4cbdcb5ca3bf93719d64f6b
 }

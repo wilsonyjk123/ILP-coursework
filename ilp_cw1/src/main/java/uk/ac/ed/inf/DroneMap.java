@@ -12,20 +12,11 @@ import java.util.List;
 
 public class DroneMap {
 
-    private final double FHLong = -3.192473;
-    private final double FHLat = 55.946233;
-    private final double KFCLong = -3.184319;
-    private final double KFCLat = 55.946233;
-    private final double MeadowsLong = -3.192473;
-    private final double MeadowsLat = 55.942617;
-    private final double BuccleuchLong = -3.184319;
-    private final double BuccleuchLat = 55.942617;
     public ArrayList<Feature> lfLandmarks = new ArrayList<>();
     public ArrayList<Point> confinementArea = new ArrayList<>();
     public ArrayList<LongLat> landmarks = new ArrayList<>();
-    ArrayList<Line2D> line2DArrayListNoFlyZone = new ArrayList<>();
-    ArrayList<Line2D> line2DArrayListConfinementArea = new ArrayList<>();
-
+    public ArrayList<Line2D> line2DArrayListNoFlyZone = new ArrayList<>();
+    public ArrayList<Line2D> line2DArrayListConfinementArea = new ArrayList<>();
     public String webPort;
 
     // Class Constructor
@@ -175,19 +166,19 @@ public class DroneMap {
 
     public double getATLat(){ return 55.944494; }
 
-    public double getFHLong(){ return FHLong; }
+    public double getFHLong(){ return -3.192473; }
 
-    public double getFHLat(){ return FHLat; }
+    public double getFHLat(){ return 55.946233; }
 
-    public double getKFCLong(){ return KFCLong; }
+    public double getKFCLong(){ return -3.184319; }
 
-    public double getKFCLat(){ return KFCLat; }
+    public double getKFCLat(){ return 55.946233; }
 
-    public double getMeadowsLong(){ return MeadowsLong; }
+    public double getMeadowsLong(){ return -3.192473; }
 
-    public double getMeadowsLat(){ return MeadowsLat; }
+    public double getMeadowsLat(){ return 55.942617; }
 
-    public double getBuccleuchLong(){ return BuccleuchLong; }
+    public double getBuccleuchLong(){ return -3.184319; }
 
-    public double getBuccleuchLat(){ return BuccleuchLat; }
+    public double getBuccleuchLat(){ return 55.942617; }
 }

@@ -10,12 +10,20 @@ import java.util.List;
 
 public class MenuParser {
     // Fields
+<<<<<<< HEAD
     String jsonText;
     String webPort;
     public MenuParser(String webPort){
+=======
+    public String jsonText;
+    public String webPort;
+    public ArrayList<Menu> menuList = null;
+
+    // Constructor
+    MenuParser(String webPort){
+>>>>>>> d02e249ce3ce5df6e4cbdcb5ca3bf93719d64f6b
         this.webPort = webPort;
     }
-    ArrayList<Menu> menuList = null;
 
     // An inner class to parse the JSON file
     public static class Menu {

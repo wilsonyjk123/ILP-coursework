@@ -10,9 +10,9 @@ import java.util.ArrayList;
 
 public class WordParser {
     // Fields
-    String webPort;
-    String jsonText;
-    Word word = null;
+    public String webPort;
+    public String jsonText;
+    public Word word = null;
 
     // Constructor
     WordParser(String webPort){

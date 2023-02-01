@@ -7,7 +7,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 
 public class WebConn {
     // field
-    String webPort;
+    public String webPort;
     private static final HttpClient client = HttpClient.newHttpClient();
 
     // Constructor
