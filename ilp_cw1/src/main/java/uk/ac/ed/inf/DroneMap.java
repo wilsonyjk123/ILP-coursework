@@ -29,7 +29,7 @@ public class DroneMap {
     public String webPort;
 
     // Class Constructor
-    DroneMap(String webPort){
+    public DroneMap(String webPort){
         this.webPort = webPort;
     }
 

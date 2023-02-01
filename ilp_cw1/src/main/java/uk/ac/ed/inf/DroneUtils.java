@@ -1,5 +1,6 @@
 package uk.ac.ed.inf;
 
+import javax.sound.sampled.Line;
 import java.awt.geom.Line2D;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -9,8 +10,12 @@ import java.util.Comparator;
 public class DroneUtils {
     DroneMap droneMap;
 
-    DroneUtils(DroneMap droneMap){
+    public DroneUtils(DroneMap droneMap){
         this.droneMap = droneMap;
+    }
+
+    public DroneUtils() {
+
     }
 
     /**
@@ -133,6 +138,7 @@ public class DroneUtils {
         }
         return isCrossed;
     }
+
 
     /**
      * When the calculated angle in each move is invalid, use this method to correct angle by shift 10 degree left and right (increment by 10)

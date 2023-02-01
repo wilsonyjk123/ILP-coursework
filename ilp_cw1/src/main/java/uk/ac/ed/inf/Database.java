@@ -9,7 +9,7 @@ public class Database {
     MenuParser menuParser;
 
     // Constructor
-    Database(String webPort,String dataBasePort, String day, String month, String year){
+    public Database(String webPort, String dataBasePort, String day, String month, String year){
         this.dataBasePort = dataBasePort;
         this.dateString = year + "-" + month + "-" + day;
         this.menuParser = new MenuParser(webPort);

@@ -12,7 +12,7 @@ public class MenuParser {
     // Fields
     String jsonText;
     String webPort;
-    MenuParser(String webPort){
+    public MenuParser(String webPort){
         this.webPort = webPort;
     }
     ArrayList<Menu> menuList = null;

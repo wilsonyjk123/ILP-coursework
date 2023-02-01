@@ -9,17 +9,17 @@ public class Drone {
     Database database;
     DroneMap droneMap;
     DroneUtils droneUtils;
-    LongLat cp;
-    LongLat tp;
-    ArrayList<Order> orders;
-    ArrayList<Point> pl;
-    ArrayList<FlightPath> flightPaths;
+    public LongLat cp; //current position
+    public LongLat tp; //target position
+    public ArrayList<Order> orders;
+    public ArrayList<Point> pl;
+    public ArrayList<FlightPath> flightPaths;
     int cost = 0;
     int batteryLimit = 1450;
     int[] shift = new int[]{10,-10,20,-20,30,-30,40,-40,50,-50,60,-60,70,-70,80,-80,90,-90,100,-100,110,-110,120,-120,130,-130,140,-140,150,-150,160,-160,170,-170,180,-180,190,-190,200,-200,210,-210,220,-220,230,-230,240,-240,250,-250,260,-260,270,-270,280,-280,290,-290,300,-300,310,-310,320,-320,330,-330,340,-340,350,-350};
 
     // Class Constructor
-    Drone(  Database database,DroneMap droneMap) throws SQLException {
+    public Drone(Database database, DroneMap droneMap) throws SQLException {
         this.droneMap = droneMap;
         this.database = database; // connect to database and get order details
         this.orders = database.readOrdersFromDatabase();
@@ -32,7 +32,7 @@ public class Drone {
      *
      * @return the List of Point that records the flight path
      * */
-    public void findPath(){
+    public void findPath(int batteryLimitation){
         pl = new ArrayList<>();
         flightPaths = new ArrayList<>();
         cp = droneMap.setAPT();
@@ -54,7 +54,7 @@ public class Drone {
                 if(droneUtils.isNoFlyZone(cp.longitude , cp.latitude , tp.longitude , tp.latitude)&& droneUtils.isConfinementArea(cp.longitude , cp.latitude , tp.longitude , tp.latitude)){
                     LongLat closestLandmark  = droneUtils.getClosestLandmark(tp,cp);
                     while (!cp.closeTo(closestLandmark)){
-                        if(cost>= batteryLimit){
+                        if(cost>= batteryLimitation){
                             break outerloop;
                         }
                         if(!droneUtils.isNoFlyZone(cp.longitude , cp.latitude , tp.longitude , tp.latitude)){
@@ -76,7 +76,7 @@ public class Drone {
                         }
                     }
                     while(!cp.closeTo(tp)){
-                        if(cost>= batteryLimit){
+                        if(cost>= batteryLimitation){
                             break outerloop;
                         }
                         if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)
@@ -102,7 +102,7 @@ public class Drone {
                     }
                 }else{
                     while(!cp.closeTo(tp)){
-                        if(cost>= batteryLimit){
+                        if(cost>= batteryLimitation){
                             break outerloop;
                         }
                         if(!droneUtils.isNoFlyZone(cp.nextPosition(droneUtils.getAngle(cp, tp)).longitude , cp.nextPosition(droneUtils.getAngle(cp, tp)).latitude , cp.longitude , cp.latitude)
@@ -216,6 +216,4 @@ public class Drone {
             }
         }
     }
-
-
 }

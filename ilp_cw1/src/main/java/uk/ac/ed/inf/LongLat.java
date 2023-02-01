@@ -12,7 +12,7 @@ public class LongLat {
      * @param longitude - Longitude is the measurement east or west of the prime meridian
      * @param latitude  - Latitude is the measurement of distance north or south of the Equator
      */
-    LongLat(double longitude, double latitude){
+    public LongLat(double longitude, double latitude){
         this.longitude = longitude;
         this.latitude = latitude;
     }

@@ -40,7 +40,7 @@ public class App
         DroneUtils.getRouteLongLat(drone.orders,menuParser);
 
         // find the flight path and record it
-        drone.findPath();
+        drone.findPath(1500);
 
         // Write the file that records the flight path
         droneMap.printRoute(drone.pl, day, month, year);
